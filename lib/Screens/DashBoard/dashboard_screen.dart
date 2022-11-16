@@ -72,6 +72,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool showResume = false;
   String checkIn = "--:--";
   String checkOut = "--:--";
+  var employeeId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    initPrefs();
+    super.initState();
+  }
+
+  void initPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = prefs.getInt('UserId');
+    setState(() {
+      employeeId = value;
+    });
+    print("value + $employeeId");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -385,7 +401,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       };
       Map<String, dynamic> body = {
         "action": action,
-        "employeeId": 119,
+        "employeeId": employeeId,
         "date": DateTime(
                 DateTime.now().year, DateTime.now().month, DateTime.now().day)
             .toString(),

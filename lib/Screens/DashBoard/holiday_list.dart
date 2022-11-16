@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:mtrackuser/ClassData/holiday_data.dart';
@@ -47,7 +48,7 @@ class _HolidayListState extends State<HolidayList> {
       setState(() {
         employeeId = value;
       });
-      print("value + $value");
+
       allData = await _getHolidays();
       setState(() {});
       showHolidayList(DateTime.now());
@@ -122,243 +123,261 @@ class _HolidayListState extends State<HolidayList> {
         ),
         body: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: holidayData == null
+                ? Align(
+                    heightFactor: 6,
+                    alignment: Alignment.center,
+                    child: Lottie.asset("assets/loading.json", height: 100))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
+                        Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.black,
+                                  size: 19,
+                                )),
+                            Text(
+                              "Holidays",
+                              style: TextStyle(
+                                  fontSize: 16.sp, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                        TableCalendar(
+                          rowHeight: 45,
+                          focusedDay: focusedDay!,
+                          firstDay: DateTime(2022),
+                          lastDay: DateTime(2024),
+                          calendarFormat: _calendarFormat,
+                          startingDayOfWeek: StartingDayOfWeek.monday,
+                          headerStyle: HeaderStyle(
+                              headerPadding: EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 20),
+                              formatButtonVisible: false,
+                              titleCentered: true,
+                              leftChevronIcon: Icon(
+                                Icons.arrow_back,
+                                color: AppColors.maincolor,
+                              ),
+                              rightChevronIcon: Icon(
+                                Icons.arrow_forward,
+                                color: AppColors.maincolor,
+                              ),
+                              titleTextStyle: TextStyle(
+                                  color: AppColors.maincolor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600)),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                              weekendStyle:
+                                  TextStyle(fontWeight: FontWeight.w500),
+                              weekdayStyle:
+                                  TextStyle(fontWeight: FontWeight.w500)),
+
+                          // calendarBuilders: CalendarBuilders(
+                          //   markerBuilder: (context, day, events) => Center(
+                          //     child: Text(
+                          //       day.day.toString(),
+                          //       style: TextStyle(color: Colors.red),
+                          //     ),
+                          //   ),
+                          // ),
+
+                          calendarStyle: CalendarStyle(
+                              markerDecoration: BoxDecoration(
+                                  color: Colors.green,
+                                  border: Border.all(color: Colors.transparent),
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(10)),
+                              outsideDaysVisible: false,
+                              defaultTextStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500),
+                              defaultDecoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              todayDecoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  border: Border.all(color: Colors.transparent),
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(10)),
+                              weekendTextStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500),
+                              weekendDecoration: BoxDecoration(
+                                  border: Border.all(color: Colors.transparent),
+                                  color: Color.fromARGB(255, 244, 199, 87),
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(10)),
+                              selectedTextStyle: TextStyle(color: Colors.black),
+                              selectedDecoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.black, width: 2),
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(10))),
+                          eventLoader: (day) {
+                            if (day.weekday == DateTime.tuesday) {
+                              return ['asd'];
+                            }
+
+                            return [];
                           },
-                          icon: Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.black,
-                            size: 19,
-                          )),
-                      Text(
-                        "Holidays",
-                        style: TextStyle(
-                            fontSize: 16.sp, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                  TableCalendar(
-                    rowHeight: 45,
-                    focusedDay: focusedDay!,
-                    firstDay: DateTime(2022),
-                    lastDay: DateTime(2024),
-                    calendarFormat: _calendarFormat,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    headerStyle: HeaderStyle(
-                        headerPadding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                        formatButtonVisible: false,
-                        titleCentered: true,
-                        leftChevronIcon: Icon(
-                          Icons.arrow_back,
-                          color: AppColors.maincolor,
-                        ),
-                        rightChevronIcon: Icon(
-                          Icons.arrow_forward,
-                          color: AppColors.maincolor,
-                        ),
-                        titleTextStyle: TextStyle(
-                            color: AppColors.maincolor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600)),
-                    daysOfWeekStyle: DaysOfWeekStyle(
-                        weekendStyle: TextStyle(fontWeight: FontWeight.w500),
-                        weekdayStyle: TextStyle(fontWeight: FontWeight.w500)),
 
-                    // calendarBuilders: CalendarBuilders(
-                    //   markerBuilder: (context, day, events) => Center(
-                    //     child: Text(
-                    //       day.day.toString(),
-                    //       style: TextStyle(color: Colors.red),
-                    //     ),
-                    //   ),
-                    // ),
-
-                    calendarStyle: CalendarStyle(
-                        markerDecoration: BoxDecoration(
-                            color: Colors.green,
-                            border: Border.all(color: Colors.transparent),
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(10)),
-                        outsideDaysVisible: false,
-                        defaultTextStyle: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.w500),
-                        defaultDecoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(10),
+                          onDaySelected: ((selectedDay, changedDate) {
+                            if (!isSameDay(_selectedDay, selectedDay)) {
+                              setState(() {
+                                _selectedDay = selectedDay;
+                                focusedDay = changedDate;
+                              });
+                            }
+                          }),
+                          selectedDayPredicate: (day) {
+                            return isSameDay(_selectedDay, day);
+                          },
+                          onPageChanged: (changedDate) {
+                            print("World");
+                            focusedDay = changedDate;
+                            monthHolidays = showHolidayList(changedDate);
+                            setState(() {});
+                          },
                         ),
-                        todayDecoration: BoxDecoration(
-                            color: Colors.purple,
-                            border: Border.all(color: Colors.transparent),
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(10)),
-                        weekendTextStyle: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w500),
-                        weekendDecoration: BoxDecoration(
-                            border: Border.all(color: Colors.transparent),
-                            color: Color.fromARGB(255, 244, 199, 87),
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(10)),
-                        selectedTextStyle: TextStyle(color: Colors.black),
-                        selectedDecoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 2),
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(10))),
-                    eventLoader: (day) {
-                      if (day.weekday == DateTime.tuesday) {
-                        return ['asd'];
-                      }
-
-                      return [];
-                    },
-                    
-                    onDaySelected: ((selectedDay, changedDate) {
-                      if (!isSameDay(_selectedDay, selectedDay)) {
-                        setState(() {
-                          _selectedDay = selectedDay;
-                          focusedDay = changedDate;
-                        });
-                      }
-                    }),
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
-                    },
-                    onPageChanged: (changedDate) {
-                      print("World");
-                      focusedDay = changedDate;
-                      monthHolidays = showHolidayList(changedDate);
-                      setState(() {});
-                    },
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Divider(
-                    thickness: 1.3,
-                    height: 30,
-                    color: Colors.grey[350],
-                  ),
-                  if (monthHolidays.isEmpty) ...[
-                    Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            height: 130,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: Color.fromARGB(255, 224, 223, 223),
-                                    width: 2)),
-                            child: Image.asset("assets/calendar.png"),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            'No Holidays This Month',
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: Color.fromARGB(255, 150, 150, 150),
-                                letterSpacing: 0.7,
-                                fontWeight: FontWeight.w500),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          thickness: 1.3,
+                          height: 30,
+                          color: Colors.grey[350],
+                        ),
+                        if (monthHolidays.isEmpty) ...[
+                          Align(
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Container(
+                                  height: 130,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: Color.fromARGB(
+                                              255, 224, 223, 223),
+                                          width: 2)),
+                                  child: Image.asset("assets/calendar.png"),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  'No Holidays This Month',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Color.fromARGB(255, 150, 150, 150),
+                                      letterSpacing: 0.7,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                  ],
-                  if (monthHolidays.isNotEmpty) ...[
-                    SizedBox(
-                      height: 400,
-                      child: ListView.builder(
-                          itemCount: monthHolidays.length,
-                          itemBuilder: (BuildContext context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Container(
-                                height: 60,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(255, 235, 234, 234),
-                                        width: 2),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Icon(
-                                        Icons.calendar_month,
-                                        color: AppColors.maincolor,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          monthHolidays[index].name,
-                                          style: TextStyle(
+                        if (monthHolidays.isNotEmpty) ...[
+                          SizedBox(
+                            height: 400,
+                            child: ListView.builder(
+                                itemCount: monthHolidays.length,
+                                itemBuilder: (BuildContext context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Container(
+                                      height: 60,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 10),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 235, 234, 234),
+                                              width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Icon(
+                                              Icons.calendar_month,
                                               color: AppColors.maincolor,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Text(
-                                          DateFormat.EEEE().format(
-                                              DateTime.parse(
-                                                  monthHolidays[index].date)),
-                                          style: TextStyle(
-                                              color: AppColors.darkgrey,
-                                              fontWeight: FontWeight.w400),
-                                        )
-                                      ],
-                                    ),
-                                    // const SizedBox(width: 80),
-                                    Expanded(
-                                      child: Text(
-                                        DateFormat.yMMMMd().format(
-                                            DateTime.parse(
-                                                monthHolidays[index].date)),
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 116, 116, 116),
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 12,
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                monthHolidays[index].name,
+                                                style: TextStyle(
+                                                    color: AppColors.maincolor,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              SizedBox(
+                                                height: 4,
+                                              ),
+                                              Text(
+                                                DateFormat.EEEE().format(
+                                                    DateTime.parse(
+                                                        monthHolidays[index]
+                                                            .date)),
+                                                style: TextStyle(
+                                                    color: AppColors.darkgrey,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              )
+                                            ],
+                                          ),
+                                          // const SizedBox(width: 80),
+                                          Expanded(
+                                            child: Text(
+                                              DateFormat.yMMMMd().format(
+                                                  DateTime.parse(
+                                                      monthHolidays[index]
+                                                          .date)),
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 116, 116, 116),
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                    ),
-                  ],
-                ])));
+                                  );
+                                }),
+                          ),
+                        ],
+                      ])));
   }
 
   // Get Document information by API

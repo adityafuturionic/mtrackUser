@@ -2,16 +2,21 @@
 
 import 'dart:convert';
 
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:http/http.dart' as http;
-import 'package:mtrackuser/ClassData/leave_type_data.dart';
+import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mtrackuser/ClassData/item_model.dart';
+import 'package:mtrackuser/ClassData/leave_data.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Leaves
 class Leaves extends StatefulWidget {
@@ -22,16 +27,13 @@ class Leaves extends StatefulWidget {
 }
 
 class _LeavesState extends State<Leaves> {
-  List<Map<String, dynamic>> _items = List.generate(
-      10,
-      (index) => {
-            'id': index,
-            'title': 'Item $index',
-            'description':
-                'This is the description of the item $index. Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-            'isExpanded': false
-          });
-  bool expand = false;
+  @override
+  void initState() {
+    _getAppliedLeaveDetails();
+    super.initState();
+  }
+
+  var employeeId;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,290 +74,370 @@ class _LeavesState extends State<Leaves> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                IconButton(
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        child: appliedLeaveData == null
+            ? Align(
+                heightFactor: 6,
+                alignment: Alignment.center,
+                child: Lottie.asset("assets/loading.json", height: 100))
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.black,
+                            size: 19,
+                          )),
+                      Text(
+                        "Leaves",
+                        style: TextStyle(
+                            fontSize: 16.sp, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Get.to(ApplyLeaves());
                     },
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.black,
-                      size: 19,
-                    )),
-                Text(
-                  "Leaves",
-                  style:
-                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.to(ApplyLeaves());
-                },
-                child: Text(
-                  "Apply Leave",
-                  style: TextStyle(fontSize: 13),
-                ),
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(103, 20),
-                  splashFactory: NoSplash.splashFactory,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  backgroundColor: AppColors.maincolor,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Applied Leaves",
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkgrey),
+                    child: Text(
+                      "Apply Leave",
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(103, 20),
+                      splashFactory: NoSplash.splashFactory,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      backgroundColor: AppColors.maincolor,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 0,
+                  ),
+                  Align(
+                    widthFactor: 2.88,
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "Applied Leaves",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkgrey),
+                    ),
                   ),
                   SizedBox(
                     height: 20,
                   ),
                   Container(
-                    height: 250,
-                    child: ListView.separated(
-                        separatorBuilder: (context, index) => SizedBox(
-                              height: 20,
-                            ),
-                        scrollDirection: Axis.vertical,
-                        itemCount: 2,
-                        shrinkWrap: true,
-                        itemBuilder: ((BuildContext context, index) {
-                          return Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Jul 25,2022",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.darkgrey),
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: Color.fromARGB(255, 233, 232, 232),
+                            width: 1.7)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 0.6.sw,
+                          child: ListView.separated(
+                              separatorBuilder: (context, index) => SizedBox(
+                                    height: 20,
                                   ),
-                                  TextButton(
-                                      onPressed: () {},
-                                      child: Text(
-                                        "View Details",
-                                        style: TextStyle(
-                                          fontSize: 14.5,
-                                          decoration: TextDecoration.underline,
-                                          fontWeight: FontWeight.w400,
-                                          color: AppColors.maincolor,
+                              scrollDirection: Axis.vertical,
+                              itemCount: appliedLeaveData.length,
+                              shrinkWrap: true,
+                              itemBuilder: ((BuildContext context, index) {
+                                DateTime dt1 = DateTime.parse(
+                                    appliedLeaveData[index]["startDateTime"]);
+                                DateTime dt2 = DateTime.parse(
+                                    appliedLeaveData[index]["endDateTime"]);
+                                Duration diff = dt2.difference(dt1);
+                                return Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          " • ${DateFormat.yMMMMd().format(DateTime.parse(appliedLeaveData[index]["createdAt"]))}",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.darkgrey),
                                         ),
-                                      ))
-                                ],
-                              ),
-                              Divider(
-                                thickness: 1.5,
-                                height: 2,
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        "Status",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.darkgrey),
-                                      ),
-                                      SizedBox(
-                                        height: 6,
-                                      ),
-                                      Text(
-                                        "Pending",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.darkgrey),
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        "Leave Type",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.darkgrey),
-                                      ),
-                                      SizedBox(
-                                        height: 6,
-                                      ),
-                                      Text(
-                                        "Sick Leave",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.darkgrey),
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        "Start Date",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.darkgrey),
-                                      ),
-                                      SizedBox(
-                                        height: 6,
-                                      ),
-                                      Text(
-                                        "27/07/2022",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.darkgrey),
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        "Days",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.darkgrey),
-                                      ),
-                                      SizedBox(
-                                        height: 6,
-                                      ),
-                                      Text(
-                                        "2 Days",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.darkgrey),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              )
-                            ],
-                          );
-                        })),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Leave Balance",
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkgrey),
+                                        TextButton(
+                                            onPressed: () {},
+                                            child: Text(
+                                              "View Details",
+                                              style: TextStyle(
+                                                fontSize: 14.5,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color.fromARGB(
+                                                    255, 21, 78, 222),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
+                                    Divider(
+                                      thickness: 1.5,
+                                      height: 2,
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Status",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.darkgrey),
+                                            ),
+                                            SizedBox(
+                                              height: 6,
+                                            ),
+                                            Text(
+                                              appliedLeaveData[index]["status"],
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors.darkgrey),
+                                            )
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Leave Type",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.darkgrey),
+                                            ),
+                                            SizedBox(
+                                              height: 6,
+                                            ),
+                                            Text(
+                                              appliedLeaveData[index]
+                                                  ["leaveType"]["name"],
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors.darkgrey),
+                                            )
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Start Date",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.darkgrey),
+                                            ),
+                                            SizedBox(
+                                              height: 6,
+                                            ),
+                                            Text(
+                                              DateFormat('dd.MM.yy').format(
+                                                  DateTime.parse(
+                                                      appliedLeaveData[index]
+                                                          ["startDateTime"])),
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors.darkgrey),
+                                            )
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Days",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.darkgrey),
+                                            ),
+                                            SizedBox(
+                                              height: 6,
+                                            ),
+                                            Text(
+                                              "${diff.inDays.toString()} Days",
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors.darkgrey),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                );
+                              })),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: 15,
                   ),
-                  ExpansionPanelList(
-                    expansionCallback: (int index, bool isExpanded) {},
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text('Item 1'),
-                          );
-                        },
-                        body: ListTile(
-                          title: Text('Item 1 child'),
-                          subtitle: Text('Details goes here'),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Leave Balance",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.darkgrey),
                         ),
-                        isExpanded: expand ? true : false,
-                      ),
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text('Item 2'),
-                          );
-                        },
-                        body: ListTile(
-                          title: Text('Item 2 child'),
-                          subtitle: Text('Details goes here'),
+                        SizedBox(
+                          height: 15,
                         ),
-                        isExpanded: expand == true ? true : false,
-                      ),
-                    ],
-                  ),
-                  ExpansionPanelList(
-                    elevation: 3,
-                    expansionCallback: (index, isExpanded) {
-                      setState(() {
-                        _items[index]['isExpanded'] = !isExpanded;
-                      });
-                    },
-                    animationDuration: Duration(milliseconds: 600),
-                    children: _items
-                        .map(
-                          (item) => ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: item['isExpanded'] == true
-                                ? Colors.cyan[100]
-                                : Colors.white,
-                            headerBuilder: (_, isExpanded) => Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 30),
-                                child: Text(
-                                  item['title'],
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                            body: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 30),
-                              child: Text(item['description']),
-                            ),
-                            isExpanded: item['isExpanded'],
+                        Container(
+                          height: 300,
+                          child: ListView.builder(
+                            itemCount: itemData.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.brown,
+                                    border: Border.all(
+                                        color:
+                                            Color.fromARGB(255, 203, 202, 202)),
+                                    borderRadius: BorderRadius.circular(15)),
+                                margin: EdgeInsets.only(bottom: 10.0),
+                                child: ExpansionPanelList(
+                                  animationDuration:
+                                      Duration(milliseconds: 500),
+                                  dividerColor: Colors.red,
+                                  elevation: 0,
+                                  children: [
+                                    ExpansionPanel(
+                                      canTapOnHeader: true,
+                                      headerBuilder: (BuildContext context,
+                                          bool isExpanded) {
+                                        return Container(
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(
+                                            itemData[index].headerItem,
+                                            style: TextStyle(
+                                              color: itemData[index].colorsItem,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      body: Container(
+                                        padding: EdgeInsets.only(
+                                            left: 10, right: 10, bottom: 20),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              itemData[index].discription,
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontSize: 15,
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      isExpanded: itemData[index].expanded,
+                                    )
+                                  ],
+                                  expansionCallback: (int item, bool status) {
+                                    setState(() {
+                                      itemData[index].expanded =
+                                          !itemData[index].expanded;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
                           ),
-                        )
-                        .toList(),
-                  ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
-            )
-          ],
-        ),
       ),
     );
+  }
+
+  List<ItemModel> itemData = <ItemModel>[
+    ItemModel(
+      headerItem: 'Android',
+      discription:
+          "Android is a mobile operating system based on a modified version of the Linux kernel and other open source software, designed primarily for touchscreen mobile devices such as smartphones and tablets.",
+      colorsItem: Colors.green,
+    ),
+    ItemModel(
+      headerItem: 'iOS',
+      discription:
+          "iOS is a mobile operating system created and developed by Apple Inc. exclusively for its hardware.",
+      colorsItem: Colors.grey,
+    ),
+    ItemModel(
+      headerItem: 'Windows',
+      discription:
+          "Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system families, all of which are developed and marketed by Microsoft. ",
+      colorsItem: Colors.blue,
+    ),
+  ];
+
+  dynamic appliedLeaveData;
+  Future<void> _getAppliedLeaveDetails() async {
+    List<AppliedLeaveData> allData = List.empty(growable: true);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = await prefs.getInt('UserId');
+    setState(() {
+      employeeId = value;
+    });
+    String url =
+        'http://mtrackapi.innoyuga.com/api/leave/leave-request/list?employeeId=$employeeId';
+    http.Response res;
+    res = await http.get(Uri.parse(url));
+    appliedLeaveData = jsonDecode(res.body);
+    for (int i = 0; i < appliedLeaveData.length; i++) {
+      allData.add(AppliedLeaveData(
+        appliedLeaveData[i]["id"],
+        appliedLeaveData[i]["status"],
+        appliedLeaveData[i]["reasonForLeave"],
+        appliedLeaveData[i]["employeeId"],
+        appliedLeaveData[i]["leaveTypeId"],
+        appliedLeaveData[i]["startDateTime"],
+        appliedLeaveData[i]["endDateTime"],
+        appliedLeaveData[i]["leaveType"]["name"],
+        appliedLeaveData[i]["createdAt"],
+      ));
+    }
+    setState(() {});
   }
 }
 
@@ -385,6 +467,7 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
   bool nextPage = false;
   String? selectedLeaveType;
   int? selectLeaveId;
+  var employeeId;
   @override
   void initState() {
     _getLeaveList();
@@ -400,7 +483,11 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
   String url = 'http://mtrackapi.innoyuga.com/api/leave/leave-type/list';
   void _getLeaveList() async {
     http.Response res;
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = await prefs.getInt('UserId');
+    setState(() {
+      employeeId = value;
+    });
     res = await http.get(Uri.parse(url));
     leaveData = jsonDecode(res.body);
     for (int i = 0; i < leaveData.length; i++) {
@@ -878,7 +965,7 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
                                           "companyId": 1,
                                           "leaveTypeId": selectLeaveId,
                                           "entityId": 1,
-                                          "employeeId": 1,
+                                          "employeeId": employeeId,
                                           "startDateTime": fromDate.text,
                                           "endDateTime": toDate.text,
                                           "status": "pending",
@@ -984,7 +1071,16 @@ class LeaveDetails extends StatefulWidget {
 
 class _LeaveDetailsState extends State<LeaveDetails> {
   @override
+  void initState() {
+    _getLeaveDetails();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    DateTime dt1 = DateTime.parse(leaveData["startDateTime"]);
+    DateTime dt2 = DateTime.parse(leaveData["endDateTime"]);
+    Duration diff = dt2.difference(dt1);
     return Scaffold(
         bottomNavigationBar: CustomWidgets.navBar(onTap: () {}),
         backgroundColor: Colors.white,
@@ -1076,7 +1172,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                   color: AppColors.darkgrey),
                             ),
                             Text(
-                              "Approved",
+                              leaveData["status"],
                               style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w400,
@@ -1139,7 +1235,9 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                       height: 6,
                                     ),
                                     Text(
-                                      "07/08/2022",
+                                      DateFormat('dd.MM.yy').format(
+                                          DateTime.parse(
+                                              leaveData["startDateTime"])),
                                       style: TextStyle(
                                           fontSize: 13,
                                           color: AppColors.maincolor,
@@ -1193,7 +1291,9 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                       height: 6,
                                     ),
                                     Text(
-                                      "11/08/2022",
+                                      DateFormat('dd.MM.yy').format(
+                                          DateTime.parse(
+                                              leaveData["endDateTime"])),
                                       style: TextStyle(
                                           fontSize: 13,
                                           color: AppColors.maincolor,
@@ -1235,7 +1335,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "4.0 Days",
+                                "${diff.inDays.toString()} Days",
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1274,7 +1374,8 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "25/07/2022",
+                                DateFormat('dd.MM.yy').format(
+                                    DateTime.parse(leaveData["createdAt"])),
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1313,7 +1414,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "Casual Leave",
+                                leaveData["leaveType"]["name"],
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1352,7 +1453,8 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "8.0",
+                                leaveData["leaveAvailable"]["leaveRemaining"]
+                                    .toString(),
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1391,7 +1493,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "Vacation",
+                                leaveData["reasonForLeave"],
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1500,6 +1602,30 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                     height: 40,
                   ),
                 ])));
+  }
+
+  dynamic leaveData;
+  void _getLeaveDetails() async {
+    List<LeaveDetailsData> allData = List.empty(growable: true);
+    String url = 'http://mtrackapi.innoyuga.com/api/leave/leave-detail/1';
+    http.Response res;
+    res = await http.get(Uri.parse(url));
+    leaveData = jsonDecode(res.body);
+    for (int i = 0; i < leaveData.length; i++) {
+      allData.add(LeaveDetailsData(
+        leaveData["id"],
+        leaveData["status"],
+        leaveData["reasonForLeave"],
+        leaveData["employeeId"],
+        leaveData["leaveTypeId"],
+        leaveData["startDateTime"],
+        leaveData["endDateTime"],
+        leaveData["leaveType"]["name"],
+        leaveData["leaveAvailable"]["leaveRemaining"],
+        leaveData["createdAt"],
+      ));
+    }
+    setState(() {});
   }
 }
 

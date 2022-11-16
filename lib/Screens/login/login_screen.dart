@@ -187,10 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
         setState(() {
-          id = data["userData"]["id"];
+          id = data["userData"]["employee"]["id"];
           prefs.setInt("UserId", id);
         });
-        print(id);
+        print("Employee ID: $id");
 
         Get.to(DashboardScreen());
         ScaffoldMessenger.of(context).showSnackBar(
