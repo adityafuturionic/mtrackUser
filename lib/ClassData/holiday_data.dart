@@ -1,6 +1,6 @@
 class Holiday {
   int id;
-  String date;
+  DateTime date;
   String name;
 
   Holiday(
@@ -12,5 +12,13 @@ class Holiday {
   @override
   String toString() {
     return '{${this.id},${this.date},${this.name}}';
+  }
+
+  factory Holiday.fromJson(Map<String, dynamic> json) {
+    return Holiday(
+      json['id'],
+      DateTime.parse(json['date']),
+      json['name'],
+    );
   }
 }

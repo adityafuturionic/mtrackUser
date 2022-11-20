@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             navigatorKey: locator<NavigationService>().navigatorKey,
             onGenerateRoute: RouteGenerator.generateRoute,
-            initialRoute: isLoggedIn ? '/DashboardScreen' : '/LoginScreen',
+            initialRoute: isLoggedIn ? '/HolidayList' : '/LoginScreen',
             title: 'mTrackUser',
             theme: ThemeData(
               splashColor: Colors.transparent,

@@ -77,6 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     // TODO: implement initState
     initPrefs();
+
     super.initState();
   }
 
@@ -86,7 +87,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       employeeId = value;
     });
-    print("value + $employeeId");
   }
 
   @override

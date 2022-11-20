@@ -34,6 +34,8 @@ class _LeavesState extends State<Leaves> {
   }
 
   var employeeId;
+
+  List<Color> dotColor = [AppColors.maincolor, Colors.green, Colors.red];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,7 +170,7 @@ class _LeavesState extends State<Leaves> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          " • ${DateFormat.yMMMMd().format(DateTime.parse(appliedLeaveData[index]["createdAt"]))}",
+                                          " • ${DateFormat.yMMMd().format(DateTime.parse(appliedLeaveData[index]["createdAt"]))}",
                                           style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -301,7 +303,6 @@ class _LeavesState extends State<Leaves> {
                     height: 15,
                   ),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -322,12 +323,15 @@ class _LeavesState extends State<Leaves> {
                             itemBuilder: (context, index) {
                               return Container(
                                 decoration: BoxDecoration(
-                                    color: Colors.brown,
                                     border: Border.all(
+                                        width: 1.8,
                                         color:
-                                            Color.fromARGB(255, 203, 202, 202)),
-                                    borderRadius: BorderRadius.circular(15)),
-                                margin: EdgeInsets.only(bottom: 10.0),
+                                            Color.fromARGB(255, 227, 227, 227)),
+                                    borderRadius: BorderRadius.circular(14)),
+                                padding: EdgeInsets.all(2),
+                                margin: EdgeInsets.only(
+                                  bottom: 10.0,
+                                ),
                                 child: ExpansionPanelList(
                                   animationDuration:
                                       Duration(milliseconds: 500),
@@ -339,13 +343,45 @@ class _LeavesState extends State<Leaves> {
                                       headerBuilder: (BuildContext context,
                                           bool isExpanded) {
                                         return Container(
-                                          padding: EdgeInsets.all(10),
-                                          child: Text(
-                                            itemData[index].headerItem,
-                                            style: TextStyle(
-                                              color: itemData[index].colorsItem,
-                                              fontSize: 18,
-                                            ),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 15),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.circle,
+                                                color: dotColor[index],
+                                                size: 10,
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    itemData[index].headerItem,
+                                                    style: TextStyle(
+                                                        color:
+                                                            AppColors.maincolor,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  Text(
+                                                    "(9 Remaining)",
+                                                    style: TextStyle(
+                                                        color:
+                                                            AppColors.maincolor,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         );
                                       },
@@ -392,19 +428,19 @@ class _LeavesState extends State<Leaves> {
 
   List<ItemModel> itemData = <ItemModel>[
     ItemModel(
-      headerItem: 'Android',
+      headerItem: 'Casual Leave',
       discription:
           "Android is a mobile operating system based on a modified version of the Linux kernel and other open source software, designed primarily for touchscreen mobile devices such as smartphones and tablets.",
       colorsItem: Colors.green,
     ),
     ItemModel(
-      headerItem: 'iOS',
+      headerItem: 'Earned Leave',
       discription:
           "iOS is a mobile operating system created and developed by Apple Inc. exclusively for its hardware.",
       colorsItem: Colors.grey,
     ),
     ItemModel(
-      headerItem: 'Windows',
+      headerItem: 'Sick Leave',
       discription:
           "Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system families, all of which are developed and marketed by Microsoft. ",
       colorsItem: Colors.blue,

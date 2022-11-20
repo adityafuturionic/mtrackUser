@@ -2,7 +2,7 @@
 
 // import 'dart:collection';
 import 'dart:convert';
-// import 'dart:html';
+
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +27,7 @@ class _HolidayListState extends State<HolidayList> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime? _selectedDay, focusedDay = DateTime.now();
   dynamic holidayData;
+  DateTime? SelectedDay;
   List<Holiday> allData = List.empty(growable: true);
   List<Holiday> monthHolidays = List.empty(growable: true);
   var employeeId;
@@ -157,6 +158,38 @@ class _HolidayListState extends State<HolidayList> {
                           lastDay: DateTime(2024),
                           calendarFormat: _calendarFormat,
                           startingDayOfWeek: StartingDayOfWeek.monday,
+                          calendarBuilders: CalendarBuilders(
+                            defaultBuilder: (
+                              context,
+                              day,
+                              focusedDay,
+                            ) {
+                              for (Holiday d in list) {
+                                if (day.day == d.date.day &&
+                                    day.month == d.date.month &&
+                                    day.year == d.date.year) {
+                                  return Container(
+                                    height: 33,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        color: Colors.lightGreen,
+                                        border: Border.all(
+                                            color: Colors.transparent),
+                                        shape: BoxShape.rectangle,
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: Center(
+                                      child: Text(
+                                        '${day.day}',
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                              return null;
+                            },
+                          ),
                           headerStyle: HeaderStyle(
                               headerPadding: EdgeInsets.symmetric(
                                   horizontal: 40, vertical: 20),
@@ -181,7 +214,7 @@ class _HolidayListState extends State<HolidayList> {
                                   TextStyle(fontWeight: FontWeight.w500)),
 
                           // calendarBuilders: CalendarBuilders(
-                          //   markerBuilder: (context, day, events) => Center(
+                          //   markerBuilder: (context, day, monthHolidays) => Center(
                           //     child: Text(
                           //       day.day.toString(),
                           //       style: TextStyle(color: Colors.red),
@@ -223,18 +256,12 @@ class _HolidayListState extends State<HolidayList> {
                                       Border.all(color: Colors.black, width: 2),
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(10))),
-                          eventLoader: (day) {
-                            if (day.weekday == DateTime.tuesday) {
-                              return ['asd'];
-                            }
-
-                            return [];
-                          },
 
                           onDaySelected: ((selectedDay, changedDate) {
                             if (!isSameDay(_selectedDay, selectedDay)) {
                               setState(() {
                                 _selectedDay = selectedDay;
+                                SelectedDay = selectedDay;
                                 focusedDay = changedDate;
                               });
                             }
@@ -345,9 +372,7 @@ class _HolidayListState extends State<HolidayList> {
                                               ),
                                               Text(
                                                 DateFormat.EEEE().format(
-                                                    DateTime.parse(
-                                                        monthHolidays[index]
-                                                            .date)),
+                                                    monthHolidays[index].date),
                                                 style: TextStyle(
                                                     color: AppColors.darkgrey,
                                                     fontWeight:
@@ -359,9 +384,7 @@ class _HolidayListState extends State<HolidayList> {
                                           Expanded(
                                             child: Text(
                                               DateFormat.yMMMMd().format(
-                                                  DateTime.parse(
-                                                      monthHolidays[index]
-                                                          .date)),
+                                                  monthHolidays[index].date),
                                               textAlign: TextAlign.right,
                                               style: TextStyle(
                                                   color: Color.fromARGB(
@@ -381,18 +404,16 @@ class _HolidayListState extends State<HolidayList> {
   }
 
   // Get Document information by API
+  List<Holiday> list = [];
   Future<List<Holiday>> _getHolidays() async {
     String url =
         'http://mtrackapi.innoyuga.com/api/holiday/list?companyId=1&locationId=4';
     http.Response res;
-    List<Holiday> list = [];
+
     res = await http.get(Uri.parse(url));
     holidayData = jsonDecode(res.body);
     for (int i = 0; i < holidayData["holidays"].length; i++) {
-      list.add(Holiday(
-          holidayData["holidays"][i]["id"],
-          holidayData["holidays"][i]["date"],
-          holidayData["holidays"][i]["name"]));
+      list.add(Holiday.fromJson(holidayData["holidays"][i]));
     }
     return list;
   }
@@ -402,8 +423,8 @@ class _HolidayListState extends State<HolidayList> {
     int i;
     for (i = 0; i < allData.length; i++) {
       //print(holidayData["holidays"][i]["date"]);
-      String date = allData[i].date;
-      DateTime parseDate = DateTime.parse(date);
+      DateTime date = allData[i].date;
+      DateTime parseDate = date;
       // DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
       // var inputDate = DateTime.parse(parseDate.toString());
       // var outputFormat = DateFormat('MM');

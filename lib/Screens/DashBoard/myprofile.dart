@@ -208,17 +208,8 @@ class _MyProfileState extends State<MyProfile> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints(),
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.edit,
-                                size: 22,
-                                color: Color.fromARGB(255, 30, 67, 159),
-                              )),
                           SizedBox(
-                            height: 13,
+                            height: 30,
                           ),
                           Text(
                             "Phone No.:",
@@ -332,21 +323,6 @@ class _MyProfileState extends State<MyProfile> {
                                 fontWeight: FontWeight.w500),
                           ),
                         ],
-                      ),
-                      SizedBox(
-                        width: 0.25.sw,
-                      ),
-                      IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints(),
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.edit,
-                            size: 22,
-                            color: Color.fromARGB(255, 30, 67, 159),
-                          )),
-                      SizedBox(
-                        height: 13,
                       ),
                     ],
                   ),
@@ -469,17 +445,8 @@ class _MyProfileState extends State<MyProfile> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints(),
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.edit,
-                                size: 22,
-                                color: Color.fromARGB(255, 30, 67, 159),
-                              )),
                           SizedBox(
-                            height: 13,
+                            height: 35,
                           ),
                           Text(
                             "Designation",
