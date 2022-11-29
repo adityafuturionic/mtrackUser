@@ -8,6 +8,7 @@ import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
+import 'package:mtrackuser/Constants/text_constant.dart';
 import 'package:mtrackuser/Navigation/locator.dart';
 import 'package:mtrackuser/Navigation/navigation_service.dart';
 import 'package:mtrackuser/Screens/DashBoard/annoucements.dart';
@@ -72,6 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool showResume = false;
   String checkIn = "--:--";
   String checkOut = "--:--";
+  var checkINdate = DateTime.now();
   var employeeId;
   @override
   void initState() {
@@ -158,6 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   show = false;
                                 });
                                 clockIn("checkIn");
+
                                 var In = DateFormat('hh:mm a')
                                     .format(DateTime.now());
                                 setState(() {
@@ -392,9 +395,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 //Api Calling here---------
   void clockIn(String action) async {
     try {
-      var baseUrl = 'http://mtrackapi.innoyuga.com';
-      final uri =
-          Uri.parse("$baseUrl/api/attendance/employeeAttendance/update");
+      final uri = Uri.parse(
+          "${TextConstant.baseURL}/api/attendance/employeeAttendance/update");
       final headers = {
         'Content-Type': 'application/json',
         'Accept': '*/*',
@@ -407,7 +409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             .toString(),
       };
       String jsonBody = json.encode(body);
-      print(body);
+
       final encoding = Encoding.getByName('utf-8');
       var response = await post(
         uri,
@@ -415,10 +417,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         body: jsonBody,
         encoding: encoding,
       );
-      int statusCode = response.statusCode;
-      var responseBody = response.body;
-      print(statusCode);
-      print(responseBody);
     } catch (e) {
       print(e.toString());
     }

@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
-import 'package:mtrackuser/ClassData/holiday_data.dart';
+import 'package:mtrackuser/Models/holiday_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +36,6 @@ class _HolidayListState extends State<HolidayList> {
       setState(() {
         focusedDay = focusedDay;
         _selectedDay = selectedDay;
-        // _selectedEvents = _getEventsForDay(selectedDay);
       });
     }
   }
@@ -51,7 +50,7 @@ class _HolidayListState extends State<HolidayList> {
       });
 
       allData = await _getHolidays();
-      setState(() {});
+
       showHolidayList(DateTime.now());
     });
 
@@ -62,26 +61,6 @@ class _HolidayListState extends State<HolidayList> {
   void dispose() {
     super.dispose();
   }
-
-// int getHashCode(DateTime key) {
-//   return key.day * 1000000 + key.month * 10000 + key.year;
-// }
-
-// final kEvents = LinkedHashMap<DateTime, List<Event>>(
-//   equals: isSameDay,
-//   hashCode: getHashCode,
-// )..addAll(_kEventSource);
-
-// final _kEventSource = Map.fromIterable(List.generate(50, (index) => index),
-//     key: (item) => DateTime.utc(kFirstDay.year, kFirstDay.month, item * 5),
-//     value: (item) => List.generate(
-//         item % 4 + 1, (index) => Event('Event $item | ${index + 1}')))
-//   ..addAll({
-//     kToday: [
-//       Event('Today\'s Event 1'),
-//       Event('Today\'s Event 2'),
-//     ],
-//   });
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +88,6 @@ class _HolidayListState extends State<HolidayList> {
               width: 10,
             )
           ],
-          // iconTheme: IconThemeData(color: Color.fromARGB(255, 30, 67, 159)),
           systemOverlayStyle: const SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.transparent,
               statusBarColor: Colors.transparent),
@@ -212,16 +190,6 @@ class _HolidayListState extends State<HolidayList> {
                                   TextStyle(fontWeight: FontWeight.w500),
                               weekdayStyle:
                                   TextStyle(fontWeight: FontWeight.w500)),
-
-                          // calendarBuilders: CalendarBuilders(
-                          //   markerBuilder: (context, day, monthHolidays) => Center(
-                          //     child: Text(
-                          //       day.day.toString(),
-                          //       style: TextStyle(color: Colors.red),
-                          //     ),
-                          //   ),
-                          // ),
-
                           calendarStyle: CalendarStyle(
                               markerDecoration: BoxDecoration(
                                   color: Colors.green,
@@ -256,7 +224,6 @@ class _HolidayListState extends State<HolidayList> {
                                       Border.all(color: Colors.black, width: 2),
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(10))),
-
                           onDaySelected: ((selectedDay, changedDate) {
                             if (!isSameDay(_selectedDay, selectedDay)) {
                               setState(() {
@@ -270,7 +237,6 @@ class _HolidayListState extends State<HolidayList> {
                             return isSameDay(_selectedDay, day);
                           },
                           onPageChanged: (changedDate) {
-                            print("World");
                             focusedDay = changedDate;
                             monthHolidays = showHolidayList(changedDate);
                             setState(() {});
@@ -380,7 +346,6 @@ class _HolidayListState extends State<HolidayList> {
                                               )
                                             ],
                                           ),
-                                          // const SizedBox(width: 80),
                                           Expanded(
                                             child: Text(
                                               DateFormat.yMMMMd().format(
@@ -403,7 +368,7 @@ class _HolidayListState extends State<HolidayList> {
                       ])));
   }
 
-  // Get Document information by API
+  // Get Holiday information by API
   List<Holiday> list = [];
   Future<List<Holiday>> _getHolidays() async {
     String url =
@@ -421,23 +386,16 @@ class _HolidayListState extends State<HolidayList> {
   List<Holiday> showHolidayList(DateTime focusedDay) {
     monthHolidays.clear();
     int i;
+    String parsedDate;
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     for (i = 0; i < allData.length; i++) {
-      //print(holidayData["holidays"][i]["date"]);
       DateTime date = allData[i].date;
-      DateTime parseDate = date;
-      // DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
-      // var inputDate = DateTime.parse(parseDate.toString());
-      // var outputFormat = DateFormat('MM');
+      parsedDate = dateFormat.format(date);
 
-      // var outputMonth = int.parse(outputFormat.format(inputDate));
-      // print(outputMonth);
-      if (parseDate.month == focusedDay.month) {
+      if (date.month == focusedDay.month) {
         monthHolidays.add(allData[i]);
       }
     }
-
-    // setState(() {});
-
     return monthHolidays;
   }
 }

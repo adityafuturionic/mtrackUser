@@ -11,8 +11,8 @@ import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:mtrackuser/ClassData/item_model.dart';
-import 'package:mtrackuser/ClassData/leave_data.dart';
+import 'package:mtrackuser/Models/item_model.dart';
+import 'package:mtrackuser/Models/leave_data.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:page_transition/page_transition.dart';
@@ -138,167 +138,173 @@ class _LeavesState extends State<Leaves> {
                   SizedBox(
                     height: 20,
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 15),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: Color.fromARGB(255, 233, 232, 232),
-                            width: 1.7)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          height: 0.6.sw,
-                          child: ListView.separated(
-                              separatorBuilder: (context, index) => SizedBox(
-                                    height: 20,
-                                  ),
-                              scrollDirection: Axis.vertical,
-                              itemCount: appliedLeaveData.length,
-                              shrinkWrap: true,
-                              itemBuilder: ((BuildContext context, index) {
-                                DateTime dt1 = DateTime.parse(
-                                    appliedLeaveData[index]["startDateTime"]);
-                                DateTime dt2 = DateTime.parse(
-                                    appliedLeaveData[index]["endDateTime"]);
-                                Duration diff = dt2.difference(dt1);
-                                return Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          " • ${DateFormat.yMMMd().format(DateTime.parse(appliedLeaveData[index]["createdAt"]))}",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.darkgrey),
-                                        ),
-                                        TextButton(
-                                            onPressed: () {},
-                                            child: Text(
-                                              "View Details",
-                                              style: TextStyle(
-                                                fontSize: 14.5,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                fontWeight: FontWeight.w500,
-                                                color: Color.fromARGB(
-                                                    255, 21, 78, 222),
+                  if (appliedLeaveData != null) ...[
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Color.fromARGB(255, 233, 232, 232),
+                              width: 1.7)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            height: 0.6.sw,
+                            child: ListView.separated(
+                                separatorBuilder: (context, index) => SizedBox(
+                                      height: 20,
+                                    ),
+                                scrollDirection: Axis.vertical,
+                                itemCount: appliedLeaveData.length,
+                                shrinkWrap: true,
+                                itemBuilder: ((BuildContext context, index) {
+                                  DateTime dt1 = DateTime.parse(
+                                      appliedLeaveData[index]["startDateTime"]);
+                                  DateTime dt2 = DateTime.parse(
+                                      appliedLeaveData[index]["endDateTime"]);
+                                  Duration diff = dt2.difference(dt1);
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            " • ${DateFormat.yMMMd().format(DateTime.parse(appliedLeaveData[index]["createdAt"]))}",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.darkgrey),
+                                          ),
+                                          TextButton(
+                                              onPressed: () {},
+                                              child: Text(
+                                                "View Details",
+                                                style: TextStyle(
+                                                  fontSize: 14.5,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color.fromARGB(
+                                                      255, 21, 78, 222),
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                      Divider(
+                                        thickness: 1.5,
+                                        height: 2,
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Status",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.darkgrey),
                                               ),
-                                            ))
-                                      ],
-                                    ),
-                                    Divider(
-                                      thickness: 1.5,
-                                      height: 2,
-                                    ),
-                                    SizedBox(
-                                      height: 15,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "Status",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.darkgrey),
-                                            ),
-                                            SizedBox(
-                                              height: 6,
-                                            ),
-                                            Text(
-                                              appliedLeaveData[index]["status"],
-                                              style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.darkgrey),
-                                            )
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "Leave Type",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.darkgrey),
-                                            ),
-                                            SizedBox(
-                                              height: 6,
-                                            ),
-                                            Text(
-                                              appliedLeaveData[index]
-                                                  ["leaveType"]["name"],
-                                              style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.darkgrey),
-                                            )
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "Start Date",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.darkgrey),
-                                            ),
-                                            SizedBox(
-                                              height: 6,
-                                            ),
-                                            Text(
-                                              DateFormat('dd.MM.yy').format(
-                                                  DateTime.parse(
-                                                      appliedLeaveData[index]
-                                                          ["startDateTime"])),
-                                              style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.darkgrey),
-                                            )
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "Days",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.darkgrey),
-                                            ),
-                                            SizedBox(
-                                              height: 6,
-                                            ),
-                                            Text(
-                                              "${diff.inDays.toString()} Days",
-                                              style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.darkgrey),
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                );
-                              })),
-                        ),
-                      ],
+                                              SizedBox(
+                                                height: 6,
+                                              ),
+                                              Text(
+                                                appliedLeaveData[index]
+                                                    ["status"],
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.darkgrey),
+                                              )
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Leave Type",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.darkgrey),
+                                              ),
+                                              SizedBox(
+                                                height: 6,
+                                              ),
+                                              Text(
+                                                appliedLeaveData[index]
+                                                    ["leaveType"]["name"],
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.darkgrey),
+                                              )
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Start Date",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.darkgrey),
+                                              ),
+                                              SizedBox(
+                                                height: 6,
+                                              ),
+                                              Text(
+                                                DateFormat('dd.MM.yy').format(
+                                                    DateTime.parse(
+                                                        appliedLeaveData[index]
+                                                            ["startDateTime"])),
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.darkgrey),
+                                              )
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Days",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.darkgrey),
+                                              ),
+                                              SizedBox(
+                                                height: 6,
+                                              ),
+                                              Text(
+                                                "${diff.inDays.toString()} Days",
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.darkgrey),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                })),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ] else ...[
+                    Container()
+                  ],
                   SizedBox(
                     height: 15,
                   ),
@@ -448,6 +454,7 @@ class _LeavesState extends State<Leaves> {
   ];
 
   dynamic appliedLeaveData;
+  int Lid = 0;
   Future<void> _getAppliedLeaveDetails() async {
     List<AppliedLeaveData> allData = List.empty(growable: true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -456,7 +463,7 @@ class _LeavesState extends State<Leaves> {
       employeeId = value;
     });
     String url =
-        'http://mtrackapi.innoyuga.com/api/leave/leave-request/list?employeeId=$employeeId';
+        'http://mtrackapi.innoyuga.com/api/leave/leave-request/list?employeeId=119';
     http.Response res;
     res = await http.get(Uri.parse(url));
     appliedLeaveData = jsonDecode(res.body);
@@ -474,6 +481,7 @@ class _LeavesState extends State<Leaves> {
       ));
     }
     setState(() {});
+    print(employeeId);
   }
 }
 
@@ -1099,7 +1107,8 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
 //Leave Details
 
 class LeaveDetails extends StatefulWidget {
-  const LeaveDetails({super.key});
+  var leaveId;
+  LeaveDetails({super.key, this.leaveId});
 
   @override
   State<LeaveDetails> createState() => _LeaveDetailsState();
@@ -1371,7 +1380,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
                                 thickness: 1.5,
                               ),
                               Text(
-                                "${diff.inDays.toString()} Days",
+                                "${leaveData["totalLeavesToConsider"]} Days",
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -1651,6 +1660,7 @@ class _LeaveDetailsState extends State<LeaveDetails> {
       allData.add(LeaveDetailsData(
         leaveData["id"],
         leaveData["status"],
+        leaveData["totalLeavesToConsider"],
         leaveData["reasonForLeave"],
         leaveData["employeeId"],
         leaveData["leaveTypeId"],

@@ -13,7 +13,6 @@ import 'package:mtrackuser/Screens/login/forgot_password_screen.dart';
 import 'package:mtrackuser/Screens/login/login_screen.dart';
 import 'package:mtrackuser/Screens/login/update_password_screen.dart';
 import 'package:mtrackuser/Screens/login/verify_otp_screen.dart';
-import 'package:mtrackuser/Screens/test.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -43,7 +42,7 @@ class RouteGenerator {
       case '/ApplyLeaves':
         return MaterialPageRoute(builder: (_) => const ApplyLeaves());
       case '/LeaveDetails':
-        return MaterialPageRoute(builder: (_) => const LeaveDetails());
+        return MaterialPageRoute(builder: (_) => LeaveDetails());
       case '/EditLeaveRequest':
         return MaterialPageRoute(builder: (_) => const EditLeaveRequest());
       case '/CompanyPolicies':
@@ -52,8 +51,6 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const Annoucements());
       case '/WorkProfile':
         return MaterialPageRoute(builder: (_) => const WorkProfile());
-      case '/Home':
-        return MaterialPageRoute(builder: (_) => const Home());
 
       default:
         return MaterialPageRoute(

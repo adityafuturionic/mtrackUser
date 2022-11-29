@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
-import 'package:mtrackuser/ClassData/userData.dart';
+import 'package:mtrackuser/Models/userdataModel.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/Screens/DashBoard/dashboard_screen.dart';
 import 'package:mtrackuser/Screens/login/forgot_password_screen.dart';
@@ -22,8 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  UserModel _userModel = UserModel();
   var id;
-
+  bool next = false;
   @override
   void initState() {
     super.initState();
@@ -126,6 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              // next == true
+                              //     ? Lottie.asset("assets/circular1.json",
+                              //         height: 70)
+                              //     :
                               CustomWidgets.button(
                                   text: "SIGN IN",
                                   onPressed: () async {
@@ -171,7 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ));
   }
 
-  Future<void> login(String email, password) async {
+  login(String email, password) async {
+    setState(() {
+      next = true;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       var headers = {'Content-Type': 'application/json'};
@@ -179,18 +187,17 @@ class _LoginScreenState extends State<LoginScreen> {
       Map body = {"email": email.toString(), "password": password};
       http.Response res =
           await http.post(url, body: jsonEncode(body), headers: headers);
-      // print(jsonEncode(body));
+
       var responseBody = res.body;
-      // print(res.body);
-      // print(res.statusCode);
 
       if (res.statusCode == 200) {
-        var data = jsonDecode(res.body);
+        _userModel = userModelFromMap(responseBody);
         setState(() {
-          id = data["userData"]["employee"]["id"];
+          id = _userModel.userData!.employee!.id;
           prefs.setInt("UserId", id);
         });
-        print("Employee ID: $id");
+        print(id);
+        prefs.setString('Users', userModelToMap(_userModel));
 
         Get.to(DashboardScreen());
         ScaffoldMessenger.of(context).showSnackBar(

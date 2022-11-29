@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import '../Navigation/locator.dart';
+import 'Screens/DashBoard/dashboard_screen.dart';
 
 class CustomWidgets {
   static Widget textField(
@@ -189,7 +190,7 @@ class CustomWidgets {
         children: [
           GestureDetector(
             onTap: () {
-              // Get.to(DashboardScreen());
+              Get.to(DashboardScreen());
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

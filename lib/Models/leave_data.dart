@@ -13,6 +13,7 @@ class LeaveType {
 class LeaveDetailsData {
   int id;
   String status;
+  int totalLeavesToConsider;
   String reasonForLeave;
   int employeeId;
   int leaveTypeId;
@@ -25,6 +26,7 @@ class LeaveDetailsData {
   LeaveDetailsData(
       this.id,
       this.status,
+      this.totalLeavesToConsider,
       this.reasonForLeave,
       this.employeeId,
       this.leaveTypeId,
@@ -36,7 +38,7 @@ class LeaveDetailsData {
 
   @override
   String toString() {
-    return '{${this.id},${this.status},${this.reasonForLeave},${this.employeeId},${this.leaveTypeId},${this.startDateTime},${this.endDateTime},${this.name},${this.leaveRemaining},${this.createdAt}}';
+    return '{${this.id},${this.status},${this.totalLeavesToConsider},${this.reasonForLeave},${this.employeeId},${this.leaveTypeId},${this.startDateTime},${this.endDateTime},${this.name},${this.leaveRemaining},${this.createdAt}}';
   }
 }
 
