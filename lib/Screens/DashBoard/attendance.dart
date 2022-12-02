@@ -27,6 +27,8 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime? _selectedDay, focusedDay = DateTime.now();
+  var month;
+  var year;
   dynamic attendanceData;
   DateTime? SelectedDay;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -77,15 +79,19 @@ class _AttendanceState extends State<Attendance> {
 
   @override
   void initState() {
+    month = DateTime.now().month;
+    year = DateTime.now().year;
     _showDetails();
-    _getAttendance();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var value = prefs.getInt('UserId');
       setState(() {
         employeeId = value;
       });
+      _getAttendance();
     });
+
     super.initState();
   }
 
@@ -99,8 +105,11 @@ class _AttendanceState extends State<Attendance> {
       status = "";
 
   var totalbrks;
+
   @override
   void dispose() {
+    _getAttendance();
+    _showDetails();
     super.dispose();
   }
 
@@ -131,7 +140,6 @@ class _AttendanceState extends State<Attendance> {
               width: 10,
             )
           ],
-          // iconTheme: IconThemeData(color: Color.fromARGB(255, 30, 67, 159)),
           systemOverlayStyle: const SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.transparent,
               statusBarColor: Colors.transparent),
@@ -475,8 +483,7 @@ class _AttendanceState extends State<Attendance> {
                                       child: Center(
                                         child: Text(
                                           '${day.day}',
-                                          style: const TextStyle(
-                                              color: Colors.white),
+                                          style: TextStyle(color: Colors.black),
                                         ),
                                       ),
                                     );
@@ -530,44 +537,68 @@ class _AttendanceState extends State<Attendance> {
                                   if (!d.Astatus("A")) {
                                     setState(() {
                                       date = d.date.toString();
-                                      intime = d.timeIn;
-                                      outtime = d.timeOut;
-                                      workinghrs = d.workDuration;
-                                      brktime = d.breakTotalTime;
-                                      totalbrks = d.breaks;
-                                      overtime = d.overTime;
+                                      intime = d.timeIn ?? "null";
+                                      outtime = d.timeOut ?? "null";
+                                      workinghrs = d.workDuration ?? "null";
+                                      brktime = d.breakTotalTime ?? "null";
+                                      totalbrks = d.breaks ?? "null";
+                                      overtime = d.overTime ?? "null";
                                       status = d.status;
+                                      if (intime == "null") {
+                                        setState(() {
+                                          intime = "null";
+                                        });
+                                      } else {
+                                        DateTime IT = DateTime.parse(
+                                            "0000-00-00T$intime");
+                                        intime =
+                                            DateFormat('hh:mm a').format(IT);
+                                      }
+                                      if (outtime == "null") {
+                                        setState(() {
+                                          outtime = "null";
+                                        });
+                                      } else {
+                                        DateTime OT = DateTime.parse(
+                                            "0000-00-00T$outtime");
+                                        outtime =
+                                            DateFormat('hh:mm a').format(OT);
+                                      }
 
-                                      DateTime IT =
-                                          DateTime.parse("0000-00-00T$intime");
-                                      intime = DateFormat('hh:mm a').format(IT);
-                                      DateTime OT =
-                                          DateTime.parse("0000-00-00T$outtime");
-                                      outtime =
-                                          DateFormat('hh:mm a').format(OT);
-                                      DateTime WHRS = DateTime.parse(
-                                          "0000-00-00T$workinghrs");
-                                      workinghrs =
-                                          DateFormat('HH:mm:ss').format(WHRS);
-                                      DateTime OvT = DateTime.parse(
-                                          "0000-00-00T$overtime");
-                                      overtime =
-                                          DateFormat('HH:mm').format(OvT);
-                                      DateTime BRT =
-                                          DateTime.parse("0000-00-00T$brktime");
-                                      brktime =
-                                          DateFormat('HH:mm:ss').format(BRT);
+                                      if (outtime == "null") {
+                                        setState(() {
+                                          outtime = "null";
+                                        });
+                                      } else {
+                                        DateTime WHRS = DateTime.parse(
+                                            "0000-00-00T$workinghrs");
+                                        workinghrs =
+                                            DateFormat('HH:mm:ss').format(WHRS);
+                                      }
+                                      if (overtime == "null") {
+                                        setState(() {
+                                          overtime = "null";
+                                        });
+                                      } else {
+                                        DateTime OvT = DateTime.parse(
+                                            "0000-00-00T$overtime");
+                                        overtime =
+                                            DateFormat('HH:mm').format(OvT);
+                                      }
+
+                                      if (brktime == "null") {
+                                        setState(() {
+                                          brktime = "null";
+                                        });
+                                      } else {
+                                        DateTime BRT = DateTime.parse(
+                                            "0000-00-00T$brktime");
+                                        brktime =
+                                            DateFormat('HH:mm:ss').format(BRT);
+                                      }
 
                                       date = DateFormat.yMMMd().format(
                                           DateTime.parse(d.date.toString()));
-
-                                      // print(intime);
-                                      // print(date);
-                                      // print(workinghrs);
-                                      // print(brktime);
-
-                                      // // print(d.breaks.values);
-                                      // print(status);
                                     });
                                   }
                                   if (d.Astatus("A")) {
@@ -947,9 +978,15 @@ class _AttendanceState extends State<Attendance> {
                             selectedDayPredicate: (day) {
                               return isSameDay(_selectedDay, day);
                             },
-                            onPageChanged: (changedDate) {
+                            onPageChanged: (changedDate) async {
                               focusedDay = changedDate;
+                              setState(() {
+                                month = changedDate.month;
+                                year = changedDate.year;
+                                _getAttendance();
+                              });
 
+                              print(year);
                               setState(() {});
                             },
                           ),
@@ -1217,7 +1254,7 @@ class _AttendanceState extends State<Attendance> {
   var Present, Absent, HalfDay, Leaves, DayOff;
   Future<List<AttendanceData>> _getAttendance() async {
     String url =
-        'http://mtrackapi.innoyuga.com/api/attendance/attendanceReport/month?employeeId=2&month=11&year=2022';
+        '${TextConstant.baseURL}/api/attendance/attendanceReport/month?employeeId=$employeeId&month=$month&year=$year';
     http.Response res;
 
     res = await http.get(Uri.parse(url));
@@ -1227,16 +1264,11 @@ class _AttendanceState extends State<Attendance> {
       list.add(AttendanceData.fromJson(attendanceData[i]));
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var value = prefs.getInt('UserId');
-    setState(() {
-      employeeId = value;
-    });
     setState(() {
       Present = list.where((element) => element.status == "P").length;
       Absent = list.where((element) => element.status == "A").length;
       HalfDay = list.where((element) => element.status == "HD").length;
-      Leaves = list.where((element) => element.status == "HL UL PL").length;
+      Leaves = list.where((element) => element.status == "HDL").length;
       DayOff = list.where((element) => element.status == "DO").length;
     });
 

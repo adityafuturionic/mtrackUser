@@ -26,7 +26,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
     "assets/CompanyProfilePNG/4.png",
     "assets/WorkProfilePNG/Five.png",
     "assets/WorkProfilePNG/Seven.png",
-    "assets/WorkProfilePNG/Two.png",
+    // "assets/WorkProfilePNG/Two.png",
   ];
   List<String> clientHeader = [
     "Company Name:",
@@ -35,19 +35,19 @@ class _CompanyProfileState extends State<CompanyProfile> {
     "Department:",
     "Location:",
     "Address:",
-    "Reporting Manager:",
+    //"Reporting Manager:",
     "Pincode:"
   ];
   List<String> companyHeader = [
     "Company Name:",
     "Designation:",
-    "Reporting Manager:",
+    // "Reporting Manager:",
     "Department:",
   ];
   List companySubHeader = [];
 
   UserModel _userModel = UserModel();
-  static var designation, empId, Dep, Loc, Add, RepMan, Pin;
+  static var compName, designation, empId, Dep, Loc, Add, RepMan, Pin;
 
   List clientSubHeader = [];
   @override
@@ -60,28 +60,30 @@ class _CompanyProfileState extends State<CompanyProfile> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String decodedMap = prefs.getString('Users') ?? "";
     _userModel = userModelFromMap(decodedMap);
+
     setState(() {
+      compName = _userModel
+          .userData?.employee?.employeeOffrollment?.offRollCompany?.name;
       designation =
           _userModel.userData?.employee?.employeeOffrollment!.designation;
       empId = _userModel.userData?.employee?.id;
       Dep = _userModel.userData?.employee?.employeeOffrollment!.department;
+      Loc = _userModel.userData?.employee?.employeeOffrollment?.location?.name;
       Add = _userModel.userData?.employee?.addresses == null ||
               _userModel.userData!.employee!.addresses!.isEmpty
           ? "null"
           : "${_userModel.userData?.employee?.addresses![0].addressLine1}";
       clientSubHeader = [
-        designation,
+        compName,
         designation,
         empId.toString(),
         Dep,
-        designation,
+        Loc,
         Add,
-        designation,
       ];
       companySubHeader = [
-        "Wipro",
+        compName,
         designation,
-        "SRK",
         Dep,
       ];
     });
@@ -113,7 +115,6 @@ class _CompanyProfileState extends State<CompanyProfile> {
               width: 10,
             )
           ],
-          // iconTheme: IconThemeData(color: Color.fromARGB(255, 30, 67, 159)),
           systemOverlayStyle: const SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.transparent,
               statusBarColor: Colors.transparent),
@@ -172,9 +173,8 @@ class _CompanyProfileState extends State<CompanyProfile> {
                                     letterSpacing: 0.6),
                               ),
                               Container(
-                                height: 410,
                                 child: ListView.builder(
-                                    itemCount: 7,
+                                    itemCount: 6,
                                     shrinkWrap: true,
                                     physics: NeverScrollableScrollPhysics(),
                                     itemBuilder: (BuildContext context, index) {
@@ -233,7 +233,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
                                     }),
                               ),
                               SizedBox(
-                                height: 30,
+                                height: 0.09.sw,
                               ),
                               Text(
                                 "COMPANY DETAILS",
@@ -246,7 +246,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
                               Container(
                                 height: 260,
                                 child: ListView.builder(
-                                    itemCount: 4,
+                                    itemCount: 3,
                                     shrinkWrap: true,
                                     physics: NeverScrollableScrollPhysics(),
                                     itemBuilder: (BuildContext context, index) {

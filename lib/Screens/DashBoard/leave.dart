@@ -11,6 +11,7 @@ import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mtrackuser/Constants/text_constant.dart';
 import 'package:mtrackuser/Models/item_model.dart';
 import 'package:mtrackuser/Models/leave_data.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
@@ -31,6 +32,12 @@ class _LeavesState extends State<Leaves> {
   void initState() {
     _getAppliedLeaveDetails();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _getAppliedLeaveDetails();
+    super.dispose();
   }
 
   var employeeId;
@@ -106,7 +113,12 @@ class _LeavesState extends State<Leaves> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(ApplyLeaves());
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => ApplyLeaves(),
+                        ),
+                      );
                     },
                     child: Text(
                       "Apply Leave",
@@ -160,11 +172,6 @@ class _LeavesState extends State<Leaves> {
                                 itemCount: appliedLeaveData.length,
                                 shrinkWrap: true,
                                 itemBuilder: ((BuildContext context, index) {
-                                  DateTime dt1 = DateTime.parse(
-                                      appliedLeaveData[index]["startDateTime"]);
-                                  DateTime dt2 = DateTime.parse(
-                                      appliedLeaveData[index]["endDateTime"]);
-                                  Duration diff = dt2.difference(dt1);
                                   return Column(
                                     children: [
                                       Row(
@@ -179,7 +186,16 @@ class _LeavesState extends State<Leaves> {
                                                 color: AppColors.darkgrey),
                                           ),
                                           TextButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .push(MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LeaveDetails(
+                                                    id: appliedLeaveData[index]
+                                                        ["id"],
+                                                  ),
+                                                ));
+                                              },
                                               child: Text(
                                                 "View Details",
                                                 style: TextStyle(
@@ -285,7 +301,7 @@ class _LeavesState extends State<Leaves> {
                                                 height: 6,
                                               ),
                                               Text(
-                                                "${diff.inDays.toString()} Days",
+                                                "${appliedLeaveData[index]["totalLeavesToConsider"]} Days",
                                                 style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w500,
@@ -454,8 +470,8 @@ class _LeavesState extends State<Leaves> {
   ];
 
   dynamic appliedLeaveData;
-  int Lid = 0;
-  Future<void> _getAppliedLeaveDetails() async {
+  //int Lid = 0;
+  void _getAppliedLeaveDetails() async {
     List<AppliedLeaveData> allData = List.empty(growable: true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = await prefs.getInt('UserId');
@@ -463,7 +479,7 @@ class _LeavesState extends State<Leaves> {
       employeeId = value;
     });
     String url =
-        'http://mtrackapi.innoyuga.com/api/leave/leave-request/list?employeeId=119';
+        '${TextConstant.baseURL}/api/leave/leave-request/list?employeeId=$employeeId&status=pending';
     http.Response res;
     res = await http.get(Uri.parse(url));
     appliedLeaveData = jsonDecode(res.body);
@@ -524,7 +540,7 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
 
   dynamic leaveData;
 
-  String url = 'http://mtrackapi.innoyuga.com/api/leave/leave-type/list';
+  String url = '${TextConstant.baseURL}/api/leave/leave-type/list';
   void _getLeaveList() async {
     http.Response res;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -584,522 +600,582 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: Form(
               key: _formKey,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              child: leaveData == null
+                  ? Align(
+                      heightFactor: 6,
+                      alignment: Alignment.center,
+                      child: Lottie.asset("assets/loading.json", height: 100))
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(
-                              Icons.arrow_back_ios,
-                              color: Colors.black,
-                              size: 19,
-                            )),
-                        Text(
-                          "Leaves",
-                          style: TextStyle(
-                              fontSize: 16.sp, fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Column(
-                        //  mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Apply Leaves",
-                            style: TextStyle(
-                                fontSize: 18.sp, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            "Leave Type*",
-                            style: TextStyle(
-                                fontSize: 16.sp, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          DropdownButtonFormField<String>(
-                            validator: (value) {
-                              if (value == null) {
-                                return ("Select Leave Type");
-                              }
-                              return null;
-                            },
-                            borderRadius: BorderRadius.circular(10),
-                            decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 0.0, horizontal: 17),
-                                hintText: "Select Leave",
-                                hintStyle: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color.fromARGB(255, 136, 136, 136),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: Color.fromARGB(255, 227, 227, 227),
-                                      width: 1.5),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                fillColor: Colors.white,
-                                filled: true),
-                            isExpanded: false,
-                            icon: const Icon(Icons.arrow_drop_down_outlined),
-                            iconSize: 30,
-                            value: selectedLeaveType,
-                            items: allLeave
-                                .map((ite) => DropdownMenuItem<String>(
-                                    value: ite.id.toString(),
-                                    child: Text(
-                                      ite.name,
-                                    )))
-                                .toList(),
-                            onChanged: (item) {
-                              selectedLeaveType = item! as String?;
-                              setState(() {
-                                selectLeaveId = int.parse(item);
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "From*",
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  CustomWidgets.textField(
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return ("Select Date");
-                                        }
-                                        return null;
-                                      },
-                                      textController: fromDate,
-                                      width: 140,
-                                      height: 70,
-                                      readOnly: true,
-                                      hintText: "Select Date",
-                                      lines: 1,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 5.0, horizontal: 8),
-                                      onTap: () async {
-                                        var from = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime.now(),
-                                            lastDate: DateTime(2050));
-                                        fromDate.text =
-                                            from.toString().substring(0, 10);
-                                      },
-                                      suffixIcon: Icon(
-                                        Icons.calendar_month,
-                                        color: Colors.black54,
-                                        size: 20,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Select Half",
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    width: 140,
-                                    child: DropdownButtonFormField<String>(
-                                      borderRadius: BorderRadius.circular(10),
-                                      decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 0.0,
-                                                  horizontal: 10),
-                                          hintText: "Select Half",
-                                          hintStyle: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color.fromARGB(
-                                                255, 136, 136, 136),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Color.fromARGB(
-                                                    255, 227, 227, 227),
-                                                width: 1.5),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.grey),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          fillColor: Colors.white,
-                                          filled: true),
-                                      isExpanded: false,
-                                      icon: const Icon(
-                                          Icons.arrow_drop_down_outlined),
-                                      iconSize: 30,
-                                      value: selectedFromHalf,
-                                      items: fromHalf
-                                          .map((item) =>
-                                              DropdownMenuItem<String>(
-                                                  value: item,
-                                                  child: Text(item,
-                                                      style: const TextStyle(
-                                                          color: Colors.black87,
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w400))))
-                                          .toList(),
-                                      onChanged: (item) {
-                                        selectedFromHalf = item!;
-                                        print(selectedFromHalf);
-                                      },
-                                      onSaved: (newValue) {
-                                        newValue = selectedFromHalf;
-                                        print(selectedFromHalf);
-                                        print(newValue);
-                                      },
-                                    ),
-                                  ),
-                                ],
+                              IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_back_ios,
+                                    color: Colors.black,
+                                    size: 19,
+                                  )),
+                              Text(
+                                "Leaves",
+                                style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
                           SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "To*",
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  CustomWidgets.textField(
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return ("Select Date");
-                                        }
-                                        return null;
-                                      },
-                                      textController: toDate,
-                                      width: 140,
-                                      height: 70,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                      readOnly: true,
-                                      hintText: "Select Date",
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 5.0, horizontal: 8),
-                                      onTap: () async {
-                                        var to = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime.now(),
-                                            lastDate: DateTime(2050));
-                                        toDate.text =
-                                            to.toString().substring(0, 10);
-                                      },
-                                      suffixIcon: Icon(
-                                        Icons.calendar_month,
-                                        color: Colors.black54,
-                                        size: 20,
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Select Half",
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    width: 140,
-                                    child: DropdownButtonFormField<String>(
-                                      borderRadius: BorderRadius.circular(10),
-                                      decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 0.0,
-                                                  horizontal: 10),
-                                          hintText: "Select Half",
-                                          hintStyle: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color.fromARGB(
-                                                255, 136, 136, 136),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Color.fromARGB(
-                                                    255, 227, 227, 227),
-                                                width: 1.5),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                                color: Colors.grey),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          fillColor: Colors.white,
-                                          filled: true),
-                                      isExpanded: false,
-                                      icon: const Icon(
-                                          Icons.arrow_drop_down_outlined),
-                                      iconSize: 30,
-                                      value: selectedToHalf,
-                                      items: toHalf
-                                          .map((item) =>
-                                              DropdownMenuItem<String>(
-                                                  value: item,
-                                                  child: Text(item,
-                                                      style: const TextStyle(
-                                                          color: Colors.black87,
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w400))))
-                                          .toList(),
-                                      onChanged: (item) {
-                                        selectedToHalf = item!;
-                                        print(selectedToHalf);
-                                      },
-                                      onSaved: (newValue) {
-                                        newValue = selectedToHalf;
-                                        print(selectedToHalf);
-                                        print(newValue);
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            "Reason for Leave*",
-                            style: TextStyle(
-                                fontSize: 16.sp, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
                             height: 10,
                           ),
-                          CustomWidgets.textField(
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return ("Type Reason");
-                              }
-                              return null;
-                            },
-                            lines: 3,
-                            hintText: "Type here ...",
-                            textController: reason,
-                          ),
-                          SizedBox(
-                            height: 70,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                child: Text(
-                                  "Cancel",
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Column(
+                              //  mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Apply Leaves",
                                   style: TextStyle(
-                                      color: Color.fromARGB(255, 123, 123, 123),
-                                      fontSize: 17,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w500),
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-
-                                    //maximumSize: Size(7, 3),
-                                    minimumSize: const Size(100, 40),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                        side: BorderSide(
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  "Leave Type*",
+                                  style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                DropdownButtonFormField<String>(
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return ("Select Leave Type");
+                                    }
+                                    return null;
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 0.0, horizontal: 17),
+                                      hintText: "Select Leave",
+                                      hintStyle: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            Color.fromARGB(255, 136, 136, 136),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
                                             color: Color.fromARGB(
-                                                255, 232, 232, 232),
+                                                255, 227, 227, 227),
                                             width: 1.5),
-                                        borderRadius:
-                                            BorderRadius.circular(8.0))),
-                              ),
-                              nextPage
-                                  ? const CircularProgressIndicator(
-                                      color: Color.fromARGB(255, 30, 67, 159),
-                                    )
-                                  : ElevatedButton(
-                                      onPressed: () async {
-                                        if (!_formKey.currentState!
-                                            .validate()) {
-                                          return;
-                                        }
-                                        var baseUrl =
-                                            'http://mtrackapi.innoyuga.com';
-                                        final uri = Uri.parse(
-                                            "$baseUrl/api/leave/leave-request/add");
-                                        final headers = {
-                                          'Content-Type': 'application/json',
-                                          'Accept': '*/*',
-                                        };
-
-                                        Map<String, dynamic> body = {
-                                          "id": 4,
-                                          "companyId": 1,
-                                          "leaveTypeId": selectLeaveId,
-                                          "entityId": 1,
-                                          "employeeId": employeeId,
-                                          "startDateTime": fromDate.text,
-                                          "endDateTime": toDate.text,
-                                          "status": "pending",
-                                          "reasonForLeave": reason.text,
-                                          "totalLeavesToConsider": 1,
-                                          "reasonLeaveToConsider": null,
-                                          "approvingAuthorityId": null,
-                                        };
-                                        String jsonBody = json.encode(body);
-                                        final encoding =
-                                            Encoding.getByName('utf-8');
-
-                                        var response = await http.post(
-                                          uri,
-                                          headers: headers,
-                                          body: jsonBody,
-                                          encoding: encoding,
-                                        );
-
-                                        int statusCode = response.statusCode;
-
-                                        var responseBody = response.body;
-                                        if (statusCode == 200) {
-                                          setState(() {
-                                            nextPage = true;
-                                          });
-
-                                          Get.to(Leaves());
-                                        } else if (statusCode != 200) {
-                                          setState(() {
-                                            nextPage = false;
-                                          });
-                                          if (response.body.isNotEmpty) {
-                                            var errMsg =
-                                                json.decode(responseBody);
-                                            print(errMsg);
-                                            if (errMsg["message"] ==
-                                                "Must be greater than 10 words") {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Reason for leave must be greater than 10 words")));
-                                            } else if (errMsg["msg"] ==
-                                                "Leave Request created successfully") {
-                                              setState(() {
-                                                nextPage = true;
-                                              });
-                                              Get.to(Leaves());
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          errMsg["message"]
-                                                              .toString())));
-                                            }
-
-                                            setState(() {
-                                              nextPage == false;
-                                            });
-                                          }
-                                        }
-                                        print(responseBody);
-                                      },
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      fillColor: Colors.white,
+                                      filled: true),
+                                  isExpanded: false,
+                                  icon: const Icon(
+                                      Icons.arrow_drop_down_outlined),
+                                  iconSize: 30,
+                                  value: selectedLeaveType,
+                                  items: allLeave
+                                      .map((ite) => DropdownMenuItem<String>(
+                                          value: ite.id.toString(),
+                                          child: Text(
+                                            ite.name,
+                                          )))
+                                      .toList(),
+                                  onChanged: (item) {
+                                    selectedLeaveType = item! as String?;
+                                    setState(() {
+                                      selectLeaveId = int.parse(item);
+                                    });
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "From*",
+                                          style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        CustomWidgets.textField(
+                                            validator: (value) {
+                                              if (value!.isEmpty) {
+                                                return ("Select Date");
+                                              }
+                                              return null;
+                                            },
+                                            textController: fromDate,
+                                            width: 140,
+                                            height: 70,
+                                            readOnly: true,
+                                            hintText: "Select Date",
+                                            lines: 1,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 5.0,
+                                                    horizontal: 8),
+                                            onTap: () async {
+                                              var from = await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime.now(),
+                                                  lastDate: DateTime(2050));
+                                              fromDate.text = from
+                                                  .toString()
+                                                  .substring(0, 10);
+                                            },
+                                            suffixIcon: Icon(
+                                              Icons.calendar_month,
+                                              color: Colors.black54,
+                                              size: 20,
+                                            )),
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Select Half",
+                                          style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          width: 140,
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            decoration: InputDecoration(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 0.0,
+                                                        horizontal: 10),
+                                                hintText: "Select Half",
+                                                hintStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color.fromARGB(
+                                                      255, 136, 136, 136),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255, 227, 227, 227),
+                                                      width: 1.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.grey),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                fillColor: Colors.white,
+                                                filled: true),
+                                            isExpanded: false,
+                                            icon: const Icon(
+                                                Icons.arrow_drop_down_outlined),
+                                            iconSize: 30,
+                                            value: selectedFromHalf,
+                                            items: fromHalf
+                                                .map((item) => DropdownMenuItem<
+                                                        String>(
+                                                    value: item,
+                                                    child: Text(item,
+                                                        style: const TextStyle(
+                                                            color:
+                                                                Colors.black87,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w400))))
+                                                .toList(),
+                                            onChanged: (item) {
+                                              selectedFromHalf = item!;
+                                              print(selectedFromHalf);
+                                            },
+                                            onSaved: (newValue) {
+                                              newValue = selectedFromHalf;
+                                              print(selectedFromHalf);
+                                              print(newValue);
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "To*",
+                                          style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        CustomWidgets.textField(
+                                            validator: (value) {
+                                              if (value!.isEmpty) {
+                                                return ("Select Date");
+                                              }
+                                              return null;
+                                            },
+                                            textController: toDate,
+                                            width: 140,
+                                            height: 70,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                            readOnly: true,
+                                            hintText: "Select Date",
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 5.0,
+                                                    horizontal: 8),
+                                            onTap: () async {
+                                              var to = await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime.now(),
+                                                  lastDate: DateTime(2050));
+                                              toDate.text = to
+                                                  .toString()
+                                                  .substring(0, 10);
+                                            },
+                                            suffixIcon: Icon(
+                                              Icons.calendar_month,
+                                              color: Colors.black54,
+                                              size: 20,
+                                            )),
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Select Half",
+                                          style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          width: 140,
+                                          child:
+                                              DropdownButtonFormField<String>(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            decoration: InputDecoration(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 0.0,
+                                                        horizontal: 10),
+                                                hintText: "Select Half",
+                                                hintStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color.fromARGB(
+                                                      255, 136, 136, 136),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255, 227, 227, 227),
+                                                      width: 1.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.grey),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                fillColor: Colors.white,
+                                                filled: true),
+                                            isExpanded: false,
+                                            icon: const Icon(
+                                                Icons.arrow_drop_down_outlined),
+                                            iconSize: 30,
+                                            value: selectedToHalf,
+                                            items: toHalf
+                                                .map((item) => DropdownMenuItem<
+                                                        String>(
+                                                    value: item,
+                                                    child: Text(item,
+                                                        style: const TextStyle(
+                                                            color:
+                                                                Colors.black87,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w400))))
+                                                .toList(),
+                                            onChanged: (item) {
+                                              selectedToHalf = item!;
+                                              print(selectedToHalf);
+                                            },
+                                            onSaved: (newValue) {
+                                              newValue = selectedToHalf;
+                                              print(selectedToHalf);
+                                              print(newValue);
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                  "Reason for Leave*",
+                                  style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                CustomWidgets.textField(
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return ("Type Reason");
+                                    }
+                                    return null;
+                                  },
+                                  lines: 3,
+                                  hintText: "Type here ...",
+                                  textController: reason,
+                                ),
+                                SizedBox(
+                                  height: 70,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {},
                                       child: Text(
-                                        "Apply",
+                                        "Cancel",
                                         style: TextStyle(
-                                            color: Colors.white,
+                                            color: Color.fromARGB(
+                                                255, 123, 123, 123),
                                             fontSize: 17,
                                             fontWeight: FontWeight.w500),
                                       ),
                                       style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              Color.fromARGB(255, 30, 67, 159),
+                                          backgroundColor: Colors.white,
 
                                           //maximumSize: Size(7, 3),
                                           minimumSize: const Size(100, 40),
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
                                               side: BorderSide(
-                                                  color: Colors.transparent,
+                                                  color: Color.fromARGB(
+                                                      255, 232, 232, 232),
                                                   width: 1.5),
                                               borderRadius:
                                                   BorderRadius.circular(8.0))),
-                                    )
-                            ],
+                                    ),
+                                    nextPage
+                                        ? const CircularProgressIndicator(
+                                            color: Color.fromARGB(
+                                                255, 30, 67, 159),
+                                          )
+                                        : ElevatedButton(
+                                            onPressed: () async {
+                                              if (!_formKey.currentState!
+                                                  .validate()) {
+                                                return;
+                                              }
+
+                                              final uri = Uri.parse(
+                                                  "${TextConstant.baseURL}/api/leave/leave-request/add");
+                                              final headers = {
+                                                'Content-Type':
+                                                    'application/json',
+                                                'Accept': '*/*',
+                                              };
+
+                                              Map<String, dynamic> body = {
+                                                "id": 4,
+                                                "companyId": 1,
+                                                "leaveTypeId": selectLeaveId,
+                                                "entityId": 1,
+                                                "employeeId": employeeId,
+                                                "startDateTime": fromDate.text,
+                                                "endDateTime": toDate.text,
+                                                "status": "pending",
+                                                "reasonForLeave": reason.text,
+                                                "totalLeavesToConsider": 1,
+                                                "reasonLeaveToConsider": null,
+                                                "approvingAuthorityId": null,
+                                              };
+                                              String jsonBody =
+                                                  json.encode(body);
+                                              final encoding =
+                                                  Encoding.getByName('utf-8');
+
+                                              var response = await http.post(
+                                                uri,
+                                                headers: headers,
+                                                body: jsonBody,
+                                                encoding: encoding,
+                                              );
+
+                                              int statusCode =
+                                                  response.statusCode;
+
+                                              var responseBody = response.body;
+                                              if (statusCode == 200) {
+                                                setState(() {
+                                                  nextPage = true;
+                                                });
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        Leaves(),
+                                                  ),
+                                                );
+                                              } else if (statusCode != 200) {
+                                                setState(() {
+                                                  nextPage = false;
+                                                });
+                                                if (response.body.isNotEmpty) {
+                                                  var errMsg =
+                                                      json.decode(responseBody);
+                                                  print(errMsg);
+                                                  if (errMsg["message"] ==
+                                                      "Must be greater than 10 words") {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(SnackBar(
+                                                            content: Text(
+                                                                "Reason for leave must be greater than 10 words")));
+                                                  } else if (errMsg["msg"] ==
+                                                      "Leave Request created successfully") {
+                                                    setState(() {
+                                                      nextPage = true;
+                                                    });
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (BuildContext
+                                                                context) =>
+                                                            Leaves(),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(SnackBar(
+                                                            content: Text(errMsg[
+                                                                    "message"]
+                                                                .toString())));
+                                                  }
+
+                                                  setState(() {
+                                                    nextPage == false;
+                                                  });
+                                                }
+                                              }
+                                              print(responseBody);
+                                            },
+                                            child: Text(
+                                              "Apply",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                    255, 30, 67, 159),
+
+                                                //maximumSize: Size(7, 3),
+                                                minimumSize:
+                                                    const Size(100, 40),
+                                                elevation: 0,
+                                                shape: RoundedRectangleBorder(
+                                                    side: BorderSide(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 1.5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0))),
+                                          )
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ]),
+                        ]),
             )));
   }
 }
@@ -1107,8 +1183,8 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
 //Leave Details
 
 class LeaveDetails extends StatefulWidget {
-  var leaveId;
-  LeaveDetails({super.key, this.leaveId});
+  int id;
+  LeaveDetails({super.key, required this.id});
 
   @override
   State<LeaveDetails> createState() => _LeaveDetailsState();
@@ -1117,15 +1193,30 @@ class LeaveDetails extends StatefulWidget {
 class _LeaveDetailsState extends State<LeaveDetails> {
   @override
   void initState() {
-    _getLeaveDetails();
+    _storeLeaveId();
+
     super.initState();
+    _getLeaveDetails();
+  }
+
+  var leaveid;
+  void _storeLeaveId() {
+    int id = widget.id;
+    setState(() {
+      leaveid = id;
+      print("*********$leaveid");
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _getLeaveDetails();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    DateTime dt1 = DateTime.parse(leaveData["startDateTime"]);
-    DateTime dt2 = DateTime.parse(leaveData["endDateTime"]);
-    Duration diff = dt2.difference(dt1);
     return Scaffold(
         bottomNavigationBar: CustomWidgets.navBar(onTap: () {}),
         backgroundColor: Colors.white,
@@ -1165,512 +1256,559 @@ class _LeaveDetailsState extends State<LeaveDetails> {
         ),
         body: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: leaveData == null
+                ? Align(
+                    heightFactor: 6,
+                    alignment: Alignment.center,
+                    child: Lottie.asset("assets/loading.json", height: 100))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.black,
-                            size: 19,
-                          )),
-                      Text(
-                        "Leaves",
-                        style: TextStyle(
-                            fontSize: 16.sp, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    //  height: 600,
-                    width: 400,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.transparent),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color.fromARGB(255, 227, 227, 227),
-                              blurRadius: 2,
-                              spreadRadius: 1)
-                        ]),
-                    child: Column(
-                      children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.black,
+                                  size: 19,
+                                )),
                             Text(
-                              "Leaves Details",
+                              "Leaves",
                               style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.darkgrey),
-                            ),
-                            Text(
-                              leaveData["status"],
-                              style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color.fromARGB(168, 0, 126, 65)),
+                                  fontSize: 16.sp, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
-                        Divider(
-                          color: Colors.black12,
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          //  height: 600,
+                          width: 400,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Color.fromARGB(255, 227, 227, 227),
+                                    blurRadius: 2,
+                                    spreadRadius: 1)
+                              ]),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Leaves Details",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.darkgrey),
+                                  ),
+                                  Text(
+                                    leaveData["status"],
+                                    style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w400,
+                                        color: Color.fromARGB(168, 0, 126, 65)),
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                color: Colors.black12,
+                                height: 35,
+                                thickness: 2,
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_month,
+                                        color: AppColors.maincolor,
+                                        size: 30,
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                "From",
+                                                style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: AppColors.maincolor,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              SizedBox(
+                                                width: 4,
+                                              ),
+                                              Text(
+                                                "(First Half)",
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: AppColors.maincolor,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: 6,
+                                          ),
+                                          Text(
+                                            DateFormat('dd.MM.yy').format(
+                                                DateTime.parse(leaveData[
+                                                    "startDateTime"])),
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: AppColors.maincolor,
+                                                fontWeight: FontWeight.w500),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_month,
+                                        color: AppColors.maincolor,
+                                        size: 30,
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                "To",
+                                                style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: AppColors.maincolor,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              SizedBox(
+                                                width: 4,
+                                              ),
+                                              Text(
+                                                "(Second Half)",
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: AppColors.maincolor,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: 6,
+                                          ),
+                                          Text(
+                                            DateFormat('dd.MM.yy').format(
+                                                DateTime.parse(
+                                                    leaveData["endDateTime"])),
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: AppColors.maincolor,
+                                                fontWeight: FontWeight.w500),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: 25,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Total Days:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    VerticalDivider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      "${leaveData["totalLeavesToConsider"]} Days",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Date Requested:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    VerticalDivider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      DateFormat('dd.MM.yy').format(
+                                          DateTime.parse(
+                                              leaveData["createdAt"])),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Leave Type:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    VerticalDivider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      leaveData["leaveType"]["name"],
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Remaining Balance:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    VerticalDivider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      "1",
+                                      // leaveData["leaveAvailable"]
+                                      //         ["leaveRemaining"]
+                                      //     .toString(),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Reason for Leave:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    VerticalDivider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      leaveData["reasonForLeave"],
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              255, 227, 227, 227),
+                                          blurRadius: 1,
+                                          spreadRadius: 0.5)
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Approved By:",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                    Align(
+                                      child: VerticalDivider(
+                                        thickness: 1.5,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Vijay Das",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.darkgrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 18,
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
                           height: 35,
-                          thickness: 2,
-                        ),
-                        SizedBox(
-                          height: 5,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.calendar_month,
-                                  color: AppColors.maincolor,
-                                  size: 30,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "From",
-                                          style: TextStyle(
-                                              fontSize: 13,
-                                              color: AppColors.maincolor,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          "(First Half)",
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: AppColors.maincolor,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 6,
-                                    ),
-                                    Text(
-                                      DateFormat('dd.MM.yy').format(
-                                          DateTime.parse(
-                                              leaveData["startDateTime"])),
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.maincolor,
-                                          fontWeight: FontWeight.w500),
-                                    )
-                                  ],
-                                ),
-                              ],
+                            ElevatedButton(
+                              onPressed: () {},
+                              child: Text(
+                                "Cancel Request",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 123, 123, 123),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+
+                                  //maximumSize: Size(7, 3),
+                                  minimumSize: const Size(100, 40),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Color.fromARGB(
+                                              255, 232, 232, 232),
+                                          width: 1.5),
+                                      borderRadius:
+                                          BorderRadius.circular(8.0))),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.calendar_month,
-                                  color: AppColors.maincolor,
-                                  size: 30,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "To",
-                                          style: TextStyle(
-                                              fontSize: 13,
-                                              color: AppColors.maincolor,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          "(Second Half)",
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: AppColors.maincolor,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 6,
-                                    ),
-                                    Text(
-                                      DateFormat('dd.MM.yy').format(
-                                          DateTime.parse(
-                                              leaveData["endDateTime"])),
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.maincolor,
-                                          fontWeight: FontWeight.w500),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            )
+                            ElevatedButton(
+                              onPressed: () async {},
+                              child: Text(
+                                "Edit Request",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Color.fromARGB(255, 30, 67, 159),
+
+                                  //maximumSize: Size(7, 3),
+                                  minimumSize: const Size(160, 40),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Colors.transparent,
+                                          width: 1.5),
+                                      borderRadius:
+                                          BorderRadius.circular(8.0))),
+                            ),
                           ],
                         ),
                         SizedBox(
-                          height: 25,
+                          height: 40,
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Total Days:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              VerticalDivider(
-                                thickness: 1.5,
-                              ),
-                              Text(
-                                "${leaveData["totalLeavesToConsider"]} Days",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Date Requested:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              VerticalDivider(
-                                thickness: 1.5,
-                              ),
-                              Text(
-                                DateFormat('dd.MM.yy').format(
-                                    DateTime.parse(leaveData["createdAt"])),
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Leave Type:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              VerticalDivider(
-                                thickness: 1.5,
-                              ),
-                              Text(
-                                leaveData["leaveType"]["name"],
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Remaining Balance:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              VerticalDivider(
-                                thickness: 1.5,
-                              ),
-                              Text(
-                                leaveData["leaveAvailable"]["leaveRemaining"]
-                                    .toString(),
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Reason for Leave:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              VerticalDivider(
-                                thickness: 1.5,
-                              ),
-                              Text(
-                                leaveData["reasonForLeave"],
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(255, 227, 227, 227),
-                                    blurRadius: 1,
-                                    spreadRadius: 0.5)
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Approved By:",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.darkgrey),
-                              ),
-                              Align(
-                                child: VerticalDivider(
-                                  thickness: 1.5,
-                                ),
-                              ),
-                              Text(
-                                "Vijay Das",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.darkgrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 18,
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 35,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text(
-                          "Cancel Request",
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 123, 123, 123),
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-
-                            //maximumSize: Size(7, 3),
-                            minimumSize: const Size(100, 40),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    color: Color.fromARGB(255, 232, 232, 232),
-                                    width: 1.5),
-                                borderRadius: BorderRadius.circular(8.0))),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {},
-                        child: Text(
-                          "Edit Request",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 30, 67, 159),
-
-                            //maximumSize: Size(7, 3),
-                            minimumSize: const Size(160, 40),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    color: Colors.transparent, width: 1.5),
-                                borderRadius: BorderRadius.circular(8.0))),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                ])));
+                      ])));
   }
 
   dynamic leaveData;
   void _getLeaveDetails() async {
     List<LeaveDetailsData> allData = List.empty(growable: true);
-    String url = 'http://mtrackapi.innoyuga.com/api/leave/leave-detail/1';
+    String url = '${TextConstant.baseURL}/api/leave/leave-detail/$leaveid';
     http.Response res;
     res = await http.get(Uri.parse(url));
     leaveData = jsonDecode(res.body);
-    for (int i = 0; i < leaveData.length; i++) {
-      allData.add(LeaveDetailsData(
-        leaveData["id"],
-        leaveData["status"],
-        leaveData["totalLeavesToConsider"],
-        leaveData["reasonForLeave"],
-        leaveData["employeeId"],
-        leaveData["leaveTypeId"],
-        leaveData["startDateTime"],
-        leaveData["endDateTime"],
-        leaveData["leaveType"]["name"],
-        leaveData["leaveAvailable"]["leaveRemaining"],
-        leaveData["createdAt"],
-      ));
-    }
+    // for (int i = 0; i < leaveData.length; i++) {
+    // allData.add(LeaveDetailsData(
+    //   leaveData["id"],
+    //   leaveData["status"],
+    //   leaveData["totalLeavesToConsider"],
+    //   leaveData["reasonForLeave"],
+    //   leaveData["employeeId"],
+    //   leaveData["leaveTypeId"],
+    //   leaveData["startDateTime"],
+    //   leaveData["endDateTime"],
+    //   leaveData["leaveType"]["name"],
+    //   leaveData["leaveAvailable"]["leaveRemaining"],
+    //   leaveData["createdAt"],
+    // ));
+    // }
+
     setState(() {});
   }
 }

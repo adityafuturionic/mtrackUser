@@ -57,26 +57,26 @@ class _WorkProfileState extends State<WorkProfile> {
     String decodedMap = prefs.getString('Users') ?? "";
     _userModel = userModelFromMap(decodedMap);
     setState(() {
-      companyName = "TEST";
-      fieldOfficer = "TEST";
+      companyName = _userModel
+          .userData?.employee?.employeeOffrollment?.offRollCompany?.name;
+      fieldOfficer = "null";
       num = _userModel.userData?.mobile;
-      clientName = "TEST";
-      loc = _userModel.userData?.employee?.addresses == null ||
-              _userModel.userData!.employee!.addresses!.isEmpty
+      clientName = "null";
+      loc = _userModel.userData?.employee?.employeeOffrollment?.location == null
           ? "null"
-          : "${_userModel.userData?.employee?.addresses![0].addressLine1}";
+          : "${_userModel.userData?.employee?.employeeOffrollment?.location?.name}";
       city = _userModel.userData?.employee?.addresses == null ||
               _userModel.userData!.employee!.addresses!.isEmpty
           ? "null"
           : "${_userModel.userData?.employee?.addresses![0].city?.name}";
-      address = _userModel.userData?.employee?.addresses == null ||
-              _userModel.userData!.employee!.addresses!.isEmpty
+      address = _userModel.userData?.employee?.employeeOffrollment?.location ==
+              null
           ? "null"
-          : "${_userModel.userData?.employee?.addresses![0].addressLine1}";
-      pincode = _userModel.userData?.employee?.addresses == null ||
-              _userModel.userData!.employee!.addresses!.isEmpty
+          : "${_userModel.userData?.employee?.employeeOffrollment?.location?.addressLine1}";
+      pincode = _userModel.userData?.employee?.employeeOffrollment?.location ==
+              null
           ? "null"
-          : "${_userModel.userData?.employee?.addresses![0].pincode}";
+          : "${_userModel.userData?.employee?.employeeOffrollment?.location?.pincode}";
       gridSubHeader = [
         companyName,
         fieldOfficer,

@@ -2499,24 +2499,25 @@ class EmployeeOffrollment {
   dynamic employeeSalaryId;
   int? employeeDetailId;
   OffRollCompany? offRollCompany;
+  Location? location;
 
-  EmployeeOffrollment({
-    this.id,
-    this.userRoles,
-    this.designation,
-    this.department,
-    this.joiningDate,
-    this.thisRoleStartDate,
-    this.lastWorkingDate,
-    this.isActive,
-    this.assignedLocationId,
-    this.employeeCode,
-    this.onRollEntityId,
-    this.offRollEntityId,
-    this.employeeSalaryId,
-    this.employeeDetailId,
-    this.offRollCompany,
-  });
+  EmployeeOffrollment(
+      {this.id,
+      this.userRoles,
+      this.designation,
+      this.department,
+      this.joiningDate,
+      this.thisRoleStartDate,
+      this.lastWorkingDate,
+      this.isActive,
+      this.assignedLocationId,
+      this.employeeCode,
+      this.onRollEntityId,
+      this.offRollEntityId,
+      this.employeeSalaryId,
+      this.employeeDetailId,
+      this.offRollCompany,
+      this.location});
 
   EmployeeOffrollment.fromJson(Map<String, dynamic> json) {
     id = json['id'] as int?;
@@ -2537,6 +2538,9 @@ class EmployeeOffrollment {
         ? OffRollCompany.fromJson(
             json['offRollCompany'] as Map<String, dynamic>)
         : null;
+    location = (json['location'] as Map<String, dynamic>?) != null
+        ? Location.fromJson(json['location'] as Map<String, dynamic>)
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -2556,6 +2560,49 @@ class EmployeeOffrollment {
     json['employeeSalaryId'] = employeeSalaryId;
     json['employeeDetailId'] = employeeDetailId;
     json['offRollCompany'] = offRollCompany?.toJson();
+    json['location'] = location?.toJson();
+    return json;
+  }
+}
+
+class Location {
+  String? name;
+  String? pincode;
+  String? addressLine1;
+  String? addressLine2;
+  dynamic isHQ;
+  dynamic locationCode;
+  dynamic contacts;
+
+  Location({
+    this.name,
+    this.pincode,
+    this.addressLine1,
+    this.addressLine2,
+    this.isHQ,
+    this.locationCode,
+    this.contacts,
+  });
+
+  Location.fromJson(Map<String, dynamic> json) {
+    name = json['name'] as String?;
+    pincode = json['pincode'] as String?;
+    addressLine1 = json['addressLine1'] as String?;
+    addressLine2 = json['addressLine2'] as String?;
+    isHQ = json['isHQ'];
+    locationCode = json['locationCode'];
+    contacts = json['contacts'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+    json['name'] = name;
+    json['pincode'] = pincode;
+    json['addressLine1'] = addressLine1;
+    json['addressLine2'] = addressLine2;
+    json['isHQ'] = isHQ;
+    json['locationCode'] = locationCode;
+    json['contacts'] = contacts;
     return json;
   }
 }

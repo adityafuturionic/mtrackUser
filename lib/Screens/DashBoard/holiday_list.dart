@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
+import 'package:mtrackuser/Constants/text_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:mtrackuser/Models/holiday_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,6 +60,8 @@ class _HolidayListState extends State<HolidayList> {
 
   @override
   void dispose() {
+    _getHolidays();
+    showHolidayList(DateTime.now());
     super.dispose();
   }
 
@@ -372,7 +375,7 @@ class _HolidayListState extends State<HolidayList> {
   List<Holiday> list = [];
   Future<List<Holiday>> _getHolidays() async {
     String url =
-        'http://mtrackapi.innoyuga.com/api/holiday/list?companyId=1&locationId=4';
+        '${TextConstant.baseURL}/api/holiday/list?companyId=1&locationId=4';
     http.Response res;
 
     res = await http.get(Uri.parse(url));

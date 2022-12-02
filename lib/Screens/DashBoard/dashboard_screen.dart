@@ -12,6 +12,7 @@ import 'package:mtrackuser/Constants/text_constant.dart';
 import 'package:mtrackuser/Navigation/locator.dart';
 import 'package:mtrackuser/Navigation/navigation_service.dart';
 import 'package:mtrackuser/Screens/DashBoard/annoucements.dart';
+import 'package:mtrackuser/Screens/DashBoard/announcement.dart';
 import 'package:mtrackuser/Screens/DashBoard/attendance.dart';
 import 'package:mtrackuser/Screens/DashBoard/companyPolicies.dart';
 import 'package:mtrackuser/Screens/DashBoard/companyProfile.dart';
@@ -41,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     HolidayList(),
     Leaves(),
     CompanyPolicies(),
-    Annoucements(),
+    announcement(),
     WorkProfile()
   ];
 
@@ -73,11 +74,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool showResume = false;
   String checkIn = "--:--";
   String checkOut = "--:--";
-  var checkINdate = DateTime.now();
+  String wrkHRS = "--:--";
+  var clockOutDate;
+  bool clockOut = false;
   var employeeId;
   @override
   void initState() {
     // TODO: implement initState
+
     initPrefs();
 
     super.initState();
@@ -90,6 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       employeeId = value;
     });
   }
+
+  var In, Out;
+  var cI;
 
   @override
   Widget build(BuildContext context) {
@@ -155,18 +162,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Center(
                       child: show == true
                           ? InkWell(
-                              onTap: () {
-                                setState(() {
-                                  show = false;
-                                });
-                                clockIn("checkIn");
+                              onTap: clockOutDate ==
+                                      DateFormat('dd.MM.yy')
+                                          .format(DateTime.now())
+                                  ? () {}
+                                  : () {
+                                      setState(() {
+                                        show = false;
+                                      });
+                                      clockIn("checkIn");
 
-                                var In = DateFormat('hh:mm a')
-                                    .format(DateTime.now());
-                                setState(() {
-                                  checkIn = In;
-                                });
-                              },
+                                      setState(() {
+                                        cI = DateFormat('yyyy-MM-ddTHH:mm:ss')
+                                            .format(DateTime.now());
+                                        In = DateFormat('hh:mm a')
+                                            .format(DateTime.now());
+                                        checkIn = In;
+                                      });
+                                    },
                               child: Image.asset("assets/clockIn.png"))
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -178,10 +191,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         show = true;
                                       });
                                       clockIn("checkOut");
-                                      var Out = DateFormat('hh:mm a')
-                                          .format(DateTime.now());
+
                                       setState(() {
+                                        var cO = DateFormat('yyyy-MM-ddTHH:mm')
+                                            .format(DateTime.now());
+                                        Out = DateFormat('hh:mm a')
+                                            .format(DateTime.now());
                                         checkOut = Out;
+                                        clockOut = true;
+                                        clockOutDate = DateFormat('dd.MM.yy')
+                                            .format(DateTime.now());
+                                        DateTime dt1 = DateTime.parse(cO);
+                                        DateTime dt2 = DateTime.parse(cI);
+                                        Duration ddd = dt1.difference(dt2);
+                                        wrkHRS =
+                                            "${ddd.inHours % 24} hrs : ${ddd.inMinutes % 60} mins";
                                       });
                                     },
                                     child: Image.asset("assets/clockOut.png")),
@@ -328,7 +352,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             height: 3,
                           ),
                           Text(
-                            "--:--:--",
+                            wrkHRS,
                             style: TextStyle(fontSize: 12.5.sp),
                           )
                         ],
@@ -409,7 +433,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             .toString(),
       };
       String jsonBody = json.encode(body);
-
+      print(body);
       final encoding = Encoding.getByName('utf-8');
       var response = await post(
         uri,

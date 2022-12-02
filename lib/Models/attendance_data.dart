@@ -77,7 +77,7 @@ class AttendanceData {
   }
 
   bool Lstatus(String) {
-    if (status == "HL" || status == "PL" || status == "UL") {
+    if (status == "HL" || status == "PL" || status == "UL" || status == "HDL") {
       return true;
     } else {
       return false;

@@ -41,8 +41,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const Leaves());
       case '/ApplyLeaves':
         return MaterialPageRoute(builder: (_) => const ApplyLeaves());
-      case '/LeaveDetails':
-        return MaterialPageRoute(builder: (_) => LeaveDetails());
+      // case '/LeaveDetails':
+      //   return MaterialPageRoute(builder: (_) => LeaveDetails());
       case '/EditLeaveRequest':
         return MaterialPageRoute(builder: (_) => const EditLeaveRequest());
       case '/CompanyPolicies':
