@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_this
+// ignore_for_file: unnecessary_this, file_names, prefer_typing_uninitialized_variables, non_constant_identifier_names, avoid_types_as_parameter_names
 
 class AttendanceData {
   DateTime date;
@@ -68,7 +68,7 @@ class AttendanceData {
     }
   }
 
-  bool HDtatus(String) {
+  bool HDstatus(String) {
     if (status == "HD") {
       return true;
     } else {

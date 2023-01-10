@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

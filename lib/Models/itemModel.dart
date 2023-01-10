@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class ItemModel {
@@ -7,7 +9,7 @@ class ItemModel {
   Color colorsItem;
 
   ItemModel({
-    this.expanded: false,
+    this.expanded = false,
     required this.headerItem,
     required this.discription,
     required this.colorsItem,

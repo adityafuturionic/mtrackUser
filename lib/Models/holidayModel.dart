@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, unnecessary_this
+
 class Holiday {
   int id;
   DateTime date;

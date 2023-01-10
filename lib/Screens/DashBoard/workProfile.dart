@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_typing_uninitialized_variables, file_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,7 +19,7 @@ class WorkProfile extends StatefulWidget {
 class _WorkProfileState extends State<WorkProfile> {
   List<String> svg = [
     "assets/WorkProfilePNG/One.png",
-    "assets/WorkProfilePNG/Two.png",
+    //"assets/WorkProfilePNG/Two.png",
     "assets/WorkProfilePNG/Three.png",
     "assets/WorkProfilePNG/Four.png",
     "assets/WorkProfilePNG/Five.png",
@@ -27,7 +29,7 @@ class _WorkProfileState extends State<WorkProfile> {
   ];
   List<String> gridHeader = [
     "Company Name:",
-    "Field Officer:",
+    //"Field Officer:",
     "Phone Number:",
     "Client Name:",
     "Location:",
@@ -57,31 +59,46 @@ class _WorkProfileState extends State<WorkProfile> {
     String decodedMap = prefs.getString('Users') ?? "";
     _userModel = userModelFromMap(decodedMap);
     setState(() {
-      companyName = _userModel
-          .userData?.employee?.employeeOffrollment?.offRollCompany?.name;
+      companyName =
+          _userModel.userData?.employee?.employeeOffrollment == null ||
+                  _userModel.userData?.employee?.employeeOffrollment
+                          ?.offRollCompany?.name ==
+                      null
+              ? "null"
+              : _userModel.userData?.employee?.employeeOffrollment
+                  ?.offRollCompany?.name;
       fieldOfficer = "null";
       num = _userModel.userData?.mobile;
       clientName = "null";
-      loc = _userModel.userData?.employee?.employeeOffrollment?.location == null
+      loc = _userModel.userData?.employee?.employeeOffrollment == null ||
+              _userModel.userData?.employee?.employeeOffrollment?.location
+                      ?.name ==
+                  null
           ? "null"
           : "${_userModel.userData?.employee?.employeeOffrollment?.location?.name}";
-      city = _userModel.userData?.employee?.addresses == null ||
-              _userModel.userData!.employee!.addresses!.isEmpty
+      city = _userModel.userData?.employee?.employeeOffrollment == null ||
+              _userModel.userData?.employee?.employeeOffrollment?.location
+                      ?.city ==
+                  null
           ? "null"
-          : "${_userModel.userData?.employee?.addresses![0].city?.name}";
-      address = _userModel.userData?.employee?.employeeOffrollment?.location ==
-              null
+          : "${_userModel.userData?.employee?.employeeOffrollment?.location?.city?.name}";
+      address = _userModel.userData?.employee?.employeeOffrollment?.location
+                      ?.addressLine1 ==
+                  null ||
+              _userModel.userData?.employee?.employeeOffrollment == null
           ? "null"
           : "${_userModel.userData?.employee?.employeeOffrollment?.location?.addressLine1}";
-      pincode = _userModel.userData?.employee?.employeeOffrollment?.location ==
-              null
+      pincode = _userModel.userData?.employee?.employeeOffrollment?.location
+                      ?.pincode ==
+                  null ||
+              _userModel.userData?.employee?.employeeOffrollment == null
           ? "null"
           : "${_userModel.userData?.employee?.employeeOffrollment?.location?.pincode}";
       gridSubHeader = [
         companyName,
-        fieldOfficer,
+        // fieldOfficer,
         num,
-        clientName,
+        companyName,
         loc,
         city,
         address,
@@ -129,143 +146,150 @@ class _WorkProfileState extends State<WorkProfile> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: _userModel.userData == null
-              ? Align(
-                  heightFactor: 6,
-                  alignment: Alignment.center,
-                  child: Lottie.asset("assets/loading.json", height: 100))
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                      Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: Icon(
-                                Icons.arrow_back_ios,
-                                color: Colors.black,
-                                size: 19,
-                              )),
-                          Text(
-                            "Work Profile",
-                            style: TextStyle(
-                                fontSize: 16.sp, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Stack(
+      body: NotificationListener<OverscrollIndicatorNotification>(
+        onNotification: ((OverscrollIndicatorNotification? notification) {
+          notification!.disallowIndicator();
+          return true;
+        }),
+        child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: _userModel.userData == null
+                ? Align(
+                    heightFactor: 6,
+                    alignment: Alignment.center,
+                    child: Lottie.asset("assets/loading.json", height: 100))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                        Row(
                           children: [
-                            Container(
-                              width: 104,
-                              height: 104,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 2.5,
-                                    color: Color.fromARGB(255, 30, 67, 159)),
-                                // boxShadow: [
-                                //   BoxShadow(
-                                //       spreadRadius: 2,
-                                //       blurRadius: 20,
-                                //       color: Colors.black.withOpacity(0.1),
-                                //       offset: Offset(0, 10))
-                                // ],
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage("assets/profile.jpeg"),
-                                  // getDisplayImage(),
-                                ),
-                              ),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.black,
+                                  size: 19,
+                                )),
+                            Text(
+                              "Work Profile",
+                              style: TextStyle(
+                                  fontSize: 16.sp, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        " ${_userModel.userData?.employee!.employeeOffrollment!.department}",
-                        style: TextStyle(
-                            color: AppColors.maincolor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      SizedBox(
-                        height: 6,
-                      ),
-                      Text(
-                        "Employee ID: ${_userModel.userData?.employee!.id}",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 136, 136, 136),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    childAspectRatio: 7 / 3.8,
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 26,
-                                    mainAxisSpacing: 18),
-                            itemCount: 8,
-                            itemBuilder: (BuildContext ctx, index) {
-                              return Container(
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 104,
+                                height: 104,
                                 decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(255, 224, 224, 224),
-                                        width: 2),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      svg[index],
-                                    ),
-                                    SizedBox(
-                                      height: 8,
-                                    ),
-                                    Text(
-                                      gridHeader[index],
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.darkgrey,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 3,
-                                    ),
-                                    Text(
-                                      gridSubHeader[index],
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.darkgrey,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
+                                  border: Border.all(
+                                      width: 2.5,
+                                      color: Color.fromARGB(255, 30, 67, 159)),
+                                  // boxShadow: [
+                                  //   BoxShadow(
+                                  //       spreadRadius: 2,
+                                  //       blurRadius: 20,
+                                  //       color: Colors.black.withOpacity(0.1),
+                                  //       offset: Offset(0, 10))
+                                  // ],
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage("assets/profile.jpeg"),
+                                    // getDisplayImage(),
+                                  ),
                                 ),
-                              );
-                            }),
-                      ),
-                    ])),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          " ${_userModel.userData?.employee!.employeeOffrollment?.department ?? "NULL"}",
+                          style: TextStyle(
+                              color: AppColors.maincolor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        SizedBox(
+                          height: 6,
+                        ),
+                        Text(
+                          "Employee Code: ${_userModel.userData?.employee?.employeeCode ?? "null"}",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 136, 136, 136),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 7 / 3.8,
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 26,
+                                      mainAxisSpacing: 18),
+                              itemCount: 7,
+                              itemBuilder: (BuildContext ctx, index) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Color.fromARGB(
+                                              255, 224, 224, 224),
+                                          width: 2),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        svg[index],
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Text(
+                                        gridHeader[index],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.darkgrey,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Text(
+                                        gridSubHeader[index],
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkgrey,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        ),
+                      ])),
+      ),
     );
   }
 }

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unnecessary_this, annotate_overrides, unnecessary_question_mark, prefer_void_to_null
 
 class ViewEmp {
   int? id;

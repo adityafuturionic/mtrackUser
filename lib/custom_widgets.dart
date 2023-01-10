@@ -1,12 +1,11 @@
-// ignore_for_file: sort_child_properties_last
+// ignore_for_file: sort_child_properties_last, sized_box_for_whitespace, prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
-import '../Navigation/locator.dart';
-import 'Screens/DashBoard/dashboard_screen.dart';
+import 'Screens/DashBoard/dashboard.dart';
 
 class CustomWidgets {
   static Widget textField(
@@ -162,7 +161,6 @@ class CustomWidgets {
                 },
                 onSaved: (newValue) {
                   newValue = selectedItem;
-                  print(newValue);
                 },
               ),
             ]));

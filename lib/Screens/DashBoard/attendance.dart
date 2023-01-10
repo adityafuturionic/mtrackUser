@@ -1,16 +1,15 @@
-import 'dart:convert';
-import 'dart:math';
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, avoid_print, prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously, prefer_final_fields, unused_element
 
+import 'dart:convert';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:day_night_time_picker/lib/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/text_constant.dart';
-import 'package:mtrackuser/Models/attendance_data.dart';
+import 'package:mtrackuser/Models/attendanceModel.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,6 +80,7 @@ class _AttendanceState extends State<Attendance> {
   void initState() {
     month = DateTime.now().month;
     year = DateTime.now().year;
+
     _showDetails();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -152,1007 +152,937 @@ class _AttendanceState extends State<Attendance> {
           ),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: attendanceData == null
-                ? Align(
-                    heightFactor: 6,
-                    alignment: Alignment.center,
-                    child: Lottie.asset("assets/loading.json", height: 100))
-                : Form(
-                    key: _formKey,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  icon: Icon(
-                                    Icons.arrow_back_ios,
-                                    color: Colors.black,
-                                    size: 19,
-                                  )),
-                              Text(
-                                "Attendance",
-                                style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    child: Text(
-                                      "Present",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color: Color.fromARGB(255, 78, 200, 82),
-                                        border: Border.all(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(5),
-                                            bottomRight: Radius.circular(5))),
-                                  ),
-                                  Container(
-                                    height: 55,
-                                    width: 60,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        Present.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                255, 190, 190, 190),
-                                            width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  )
-                                ],
-                              ),
-
-                              //Absent
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    child: Text(
-                                      "Absent",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color: Color.fromARGB(255, 200, 78, 78),
-                                        border: Border.all(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(5),
-                                            bottomRight: Radius.circular(5))),
-                                  ),
-                                  Container(
-                                    height: 55,
-                                    width: 60,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        Absent.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                255, 190, 190, 190),
-                                            width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  )
-                                ],
-                              ),
-
-                              //Half Day
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    child: Text(
-                                      "Half Day",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color.fromARGB(255, 235, 215, 33),
-                                        border: Border.all(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(5),
-                                            bottomRight: Radius.circular(5))),
-                                  ),
-                                  Container(
-                                    height: 55,
-                                    width: 60,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        HalfDay.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                255, 190, 190, 190),
-                                            width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  )
-                                ],
-                              ),
-
-                              //Leaves
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    child: Text(
-                                      "Leaves",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color.fromARGB(255, 78, 129, 200),
-                                        border: Border.all(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(5),
-                                            bottomRight: Radius.circular(5))),
-                                  ),
-                                  Container(
-                                    height: 55,
-                                    width: 60,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        Leaves.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                255, 190, 190, 190),
-                                            width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  )
-                                ],
-                              ),
-
-                              //Day Off
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    child: Text(
-                                      "Day Off",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color: Color.fromARGB(255, 97, 89, 89),
-                                        border: Border.all(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(5),
-                                            bottomRight: Radius.circular(5))),
-                                  ),
-                                  Container(
-                                    height: 55,
-                                    width: 60,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        DayOff.toString(),
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                255, 190, 190, 190),
-                                            width: 1),
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                          TableCalendar(
-                            rowHeight: 45,
-                            focusedDay: focusedDay!,
-                            firstDay: DateTime(2022),
-                            lastDay: DateTime(2024),
-                            calendarFormat: _calendarFormat,
-                            startingDayOfWeek: StartingDayOfWeek.monday,
-                            headerStyle: HeaderStyle(
-                                headerPadding: EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20),
-                                formatButtonVisible: false,
-                                titleCentered: true,
-                                leftChevronIcon: Icon(
-                                  Icons.arrow_back,
-                                  color: AppColors.maincolor,
+        body: NotificationListener<OverscrollIndicatorNotification>(
+          onNotification: ((OverscrollIndicatorNotification? notification) {
+            notification!.disallowIndicator();
+            return true;
+          }),
+          child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: attendanceData == null
+                  ? Align(
+                      heightFactor: 6,
+                      alignment: Alignment.center,
+                      child: Lottie.asset("assets/loading.json", height: 100))
+                  : Form(
+                      key: _formKey,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    icon: Icon(
+                                      Icons.arrow_back_ios,
+                                      color: Colors.black,
+                                      size: 19,
+                                    )),
+                                Text(
+                                  "Attendance",
+                                  style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500),
                                 ),
-                                rightChevronIcon: Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.maincolor,
-                                ),
-                                titleTextStyle: TextStyle(
-                                    color: AppColors.maincolor,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600)),
-                            daysOfWeekStyle: DaysOfWeekStyle(
-                                weekendStyle:
-                                    TextStyle(fontWeight: FontWeight.w500),
-                                weekdayStyle:
-                                    TextStyle(fontWeight: FontWeight.w500)),
-                            calendarBuilders: CalendarBuilders(
-                              defaultBuilder: (
-                                context,
-                                day,
-                                focusedDay,
-                              ) {
-                                for (AttendanceData d in list) {
-                                  if (day.day == d.date.day &&
-                                      day.month == d.date.month &&
-                                      day.year == d.date.year) {
-                                    return Container(
-                                      height: 33,
-                                      width: 40,
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      child: Text(
+                                        "Present",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
                                       decoration: BoxDecoration(
-                                          color: d.Pstatus("P")
-                                              ? Color.fromARGB(
-                                                  255, 138, 203, 143)
-                                              : d.Astatus("A")
-                                                  ? Color.fromARGB(
-                                                      220, 207, 90, 90)
-                                                  : d.HDtatus("HD")
-                                                      ? Color.fromARGB(
-                                                          255, 235, 215, 33)
-                                                      : d.Lstatus("HL UL PL")
-                                                          ? Color.fromARGB(
-                                                              255, 78, 129, 200)
-                                                          : d.DOstatus("DO")
-                                                              ? Color.fromARGB(
-                                                                  255,
-                                                                  97,
-                                                                  89,
-                                                                  89)
-                                                              : Colors
-                                                                  .transparent,
+                                          color:
+                                              Color.fromARGB(255, 78, 200, 82),
                                           border: Border.all(
                                               color: Colors.transparent),
-                                          shape: BoxShape.rectangle,
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      child: Center(
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5))),
+                                    ),
+                                    Container(
+                                      height: 55,
+                                      width: 60,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
                                         child: Text(
-                                          '${day.day}',
-                                          style: TextStyle(color: Colors.black),
+                                          Present.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800),
                                         ),
                                       ),
-                                    );
-                                  }
-                                }
-                                return null;
-                              },
-                            ),
-                            calendarStyle: CalendarStyle(
-                                outsideDaysVisible: false,
-                                defaultTextStyle: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500),
-                                defaultDecoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                todayDecoration: BoxDecoration(
-                                    color: Colors.purple,
-                                    border:
-                                        Border.all(color: Colors.transparent),
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(5)),
-                                weekendTextStyle: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500),
-                                weekendDecoration: BoxDecoration(
-                                    border:
-                                        Border.all(color: Colors.transparent),
-                                    color: Color.fromARGB(255, 216, 244, 233),
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(5)),
-                                selectedTextStyle:
-                                    TextStyle(color: Colors.black),
-                                selectedDecoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.black, width: 2),
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(10))),
-                            onDaySelected: ((selectedDay, changedDate) {
-                              setState(() {
-                                changedDate = selectedDay;
-                                SelectedDay = selectedDay;
-                              });
-
-                              for (AttendanceData d in list) {
-                                if (selectedDay.day == d.date.day &&
-                                    selectedDay.month == d.date.month &&
-                                    selectedDay.year == d.date.year) {
-                                  if (!d.Astatus("A")) {
-                                    setState(() {
-                                      date = d.date.toString();
-                                      intime = d.timeIn ?? "null";
-                                      outtime = d.timeOut ?? "null";
-                                      workinghrs = d.workDuration ?? "null";
-                                      brktime = d.breakTotalTime ?? "null";
-                                      totalbrks = d.breaks ?? "null";
-                                      overtime = d.overTime ?? "null";
-                                      status = d.status;
-                                      if (intime == "null") {
-                                        setState(() {
-                                          intime = "null";
-                                        });
-                                      } else {
-                                        DateTime IT = DateTime.parse(
-                                            "0000-00-00T$intime");
-                                        intime =
-                                            DateFormat('hh:mm a').format(IT);
-                                      }
-                                      if (outtime == "null") {
-                                        setState(() {
-                                          outtime = "null";
-                                        });
-                                      } else {
-                                        DateTime OT = DateTime.parse(
-                                            "0000-00-00T$outtime");
-                                        outtime =
-                                            DateFormat('hh:mm a').format(OT);
-                                      }
-
-                                      if (outtime == "null") {
-                                        setState(() {
-                                          outtime = "null";
-                                        });
-                                      } else {
-                                        DateTime WHRS = DateTime.parse(
-                                            "0000-00-00T$workinghrs");
-                                        workinghrs =
-                                            DateFormat('HH:mm:ss').format(WHRS);
-                                      }
-                                      if (overtime == "null") {
-                                        setState(() {
-                                          overtime = "null";
-                                        });
-                                      } else {
-                                        DateTime OvT = DateTime.parse(
-                                            "0000-00-00T$overtime");
-                                        overtime =
-                                            DateFormat('HH:mm').format(OvT);
-                                      }
-
-                                      if (brktime == "null") {
-                                        setState(() {
-                                          brktime = "null";
-                                        });
-                                      } else {
-                                        DateTime BRT = DateTime.parse(
-                                            "0000-00-00T$brktime");
-                                        brktime =
-                                            DateFormat('HH:mm:ss').format(BRT);
-                                      }
-
-                                      date = DateFormat.yMMMd().format(
-                                          DateTime.parse(d.date.toString()));
-                                    });
-                                  }
-                                  if (d.Astatus("A")) {
-                                    showModalBottomSheet<void>(
-                                        context: context,
-                                        shape: RoundedRectangleBorder(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 190, 190, 190),
+                                              width: 1),
                                           borderRadius:
-                                              BorderRadius.circular(10.0),
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                ),
+
+                                //Absent
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      child: Text(
+                                        "Absent",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 200, 78, 78),
+                                          border: Border.all(
+                                              color: Colors.transparent),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5))),
+                                    ),
+                                    Container(
+                                      height: 55,
+                                      width: 60,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Text(
+                                          Absent.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800),
                                         ),
-                                        builder: (BuildContext context) {
-                                          return StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter state) {
-                                            return Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 20),
-                                              height: bottomSheetHeight,
-                                              decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      width: 1,
-                                                      color: Color.fromARGB(
-                                                          255, 226, 226, 226)),
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  10),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10))),
-                                              child: Column(
-                                                children: [
-                                                  SizedBox(
-                                                    height: 20,
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: <Widget>[
-                                                      Text(
-                                                        DateFormat.yMMMd().format(
-                                                            DateTime.parse(d
-                                                                .date
-                                                                .toString())),
-                                                        style: TextStyle(
-                                                            fontSize: 25,
-                                                            color:
-                                                                Colors.black87,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
-                                                      ),
-                                                      IconButton(
+                                      ),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 190, 190, 190),
+                                              width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                ),
+
+                                //Half Day
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      child: Text(
+                                        "Half Day",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 235, 215, 33),
+                                          border: Border.all(
+                                              color: Colors.transparent),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5))),
+                                    ),
+                                    Container(
+                                      height: 55,
+                                      width: 60,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Text(
+                                          HalfDay.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800),
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 190, 190, 190),
+                                              width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                ),
+
+                                //Leaves
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      child: Text(
+                                        "Leaves",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 78, 129, 200),
+                                          border: Border.all(
+                                              color: Colors.transparent),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5))),
+                                    ),
+                                    Container(
+                                      height: 55,
+                                      width: 60,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Text(
+                                          Leaves.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800),
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 190, 190, 190),
+                                              width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                ),
+
+                                //Day Off
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      child: Text(
+                                        "Day Off",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 97, 89, 89),
+                                          border: Border.all(
+                                              color: Colors.transparent),
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5))),
+                                    ),
+                                    Container(
+                                      height: 55,
+                                      width: 60,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Text(
+                                          DayOff.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800),
+                                        ),
+                                      ),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255, 190, 190, 190),
+                                              width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                            TableCalendar(
+                              rowHeight: 45,
+                              focusedDay: focusedDay!,
+                              firstDay: DateTime(2022),
+                              lastDay: DateTime(2024),
+                              calendarFormat: _calendarFormat,
+                              startingDayOfWeek: StartingDayOfWeek.monday,
+                              headerStyle: HeaderStyle(
+                                  headerPadding: EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 20),
+                                  formatButtonVisible: false,
+                                  titleCentered: true,
+                                  leftChevronIcon: Icon(
+                                    Icons.arrow_back,
+                                    color: AppColors.maincolor,
+                                  ),
+                                  rightChevronIcon: Icon(
+                                    Icons.arrow_forward,
+                                    color: AppColors.maincolor,
+                                  ),
+                                  titleTextStyle: TextStyle(
+                                      color: AppColors.maincolor,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600)),
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                  weekendStyle:
+                                      TextStyle(fontWeight: FontWeight.w500),
+                                  weekdayStyle:
+                                      TextStyle(fontWeight: FontWeight.w500)),
+                              calendarBuilders: CalendarBuilders(
+                                defaultBuilder: (
+                                  context,
+                                  day,
+                                  focusedDay,
+                                ) {
+                                  for (AttendanceData d in list) {
+                                    if (day.day == d.date.day &&
+                                        day.month == d.date.month &&
+                                        day.year == d.date.year) {
+                                      return Container(
+                                        height: 33,
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                            color: d.Pstatus("P")
+                                                ? Color.fromARGB(
+                                                    255, 138, 203, 143)
+                                                : d.Astatus("A")
+                                                    ? Color.fromARGB(
+                                                        220, 207, 90, 90)
+                                                    : d.HDstatus("HD")
+                                                        ? Color.fromARGB(
+                                                            255, 235, 215, 33)
+                                                        : d.Lstatus("HL UL PL")
+                                                            ? Color.fromARGB(
+                                                                255,
+                                                                78,
+                                                                129,
+                                                                200)
+                                                            : d.DOstatus("DO")
+                                                                ? Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        97,
+                                                                        89,
+                                                                        89)
+                                                                : Colors
+                                                                    .transparent,
+                                            border: Border.all(
+                                                color: Colors.transparent),
+                                            shape: BoxShape.rectangle,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: Center(
+                                          child: Text(
+                                            '${day.day}',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  return null;
+                                },
+                              ),
+                              calendarStyle: CalendarStyle(
+                                  outsideDaysVisible: false,
+                                  defaultTextStyle: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500),
+                                  defaultDecoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.rectangle,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  todayDecoration: BoxDecoration(
+                                      color: Colors.purple,
+                                      border:
+                                          Border.all(color: Colors.transparent),
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  weekendTextStyle: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500),
+                                  weekendDecoration: BoxDecoration(
+                                      border:
+                                          Border.all(color: Colors.transparent),
+                                      color: Color.fromARGB(255, 216, 244, 233),
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  selectedTextStyle:
+                                      TextStyle(color: Colors.black),
+                                  selectedDecoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.black, width: 2),
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.circular(10))),
+                              onDaySelected: ((selectedDay, changedDate) {
+                                setState(() {
+                                  changedDate = selectedDay;
+                                  SelectedDay = selectedDay;
+                                });
+
+                                for (AttendanceData d in list) {
+                                  if (selectedDay.day == d.date.day &&
+                                      selectedDay.month == d.date.month &&
+                                      selectedDay.year == d.date.year) {
+                                    if (!d.Astatus("A")) {
+                                      setState(() {
+                                        date = d.date.toString();
+                                        intime = d.timeIn ?? "null";
+                                        outtime = d.timeOut ?? "null";
+                                        workinghrs = d.workDuration ?? "null";
+                                        brktime = d.breakTotalTime ?? "null";
+                                        totalbrks = d.breaks ?? "null";
+                                        overtime = d.overTime ?? "null";
+                                        status = d.status;
+                                        if (intime == "null") {
+                                          setState(() {
+                                            intime = "null";
+                                          });
+                                        } else {
+                                          DateTime IT = DateTime.parse(
+                                              "0000-00-00T$intime");
+                                          intime =
+                                              DateFormat('hh:mm a').format(IT);
+                                        }
+                                        if (outtime == "null") {
+                                          setState(() {
+                                            outtime = "null";
+                                          });
+                                        } else {
+                                          DateTime OT = DateTime.parse(
+                                              "0000-00-00T$outtime");
+                                          outtime =
+                                              DateFormat('hh:mm a').format(OT);
+                                        }
+
+                                        if (outtime == "null") {
+                                          setState(() {
+                                            outtime = "null";
+                                          });
+                                        } else {
+                                          DateTime WHRS = DateTime.parse(
+                                              "0000-00-00T$workinghrs");
+                                          workinghrs = DateFormat('HH:mm:ss')
+                                              .format(WHRS);
+                                        }
+                                        if (overtime == "null") {
+                                          setState(() {
+                                            overtime = "null";
+                                          });
+                                        } else {
+                                          DateTime OvT = DateTime.parse(
+                                              "0000-00-00T$overtime");
+                                          overtime =
+                                              DateFormat('HH:mm').format(OvT);
+                                        }
+
+                                        if (brktime == "null") {
+                                          setState(() {
+                                            brktime = "null";
+                                          });
+                                        } else {
+                                          DateTime BRT = DateTime.parse(
+                                              "0000-00-00T$brktime");
+                                          brktime = DateFormat('HH:mm:ss')
+                                              .format(BRT);
+                                        }
+
+                                        date = DateFormat.yMMMd().format(
+                                            DateTime.parse(d.date.toString()));
+                                      });
+                                    }
+                                    if (d.Astatus("A")) {
+                                      showModalBottomSheet<void>(
+                                          context: context,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          builder: (BuildContext context) {
+                                            return StatefulBuilder(builder:
+                                                (BuildContext context,
+                                                    StateSetter state) {
+                                              return Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20),
+                                                height: bottomSheetHeight,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1,
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            226,
+                                                            226,
+                                                            226)),
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topLeft: Radius
+                                                                .circular(10),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    10))),
+                                                child: Column(
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          DateFormat.yMMMd().format(
+                                                              DateTime.parse(d
+                                                                  .date
+                                                                  .toString())),
+                                                          style: TextStyle(
+                                                              fontSize: 25,
+                                                              color: Colors
+                                                                  .black87,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500),
+                                                        ),
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.close)),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height: 15,
+                                                    ),
+                                                    Container(
+                                                        height: 60,
+                                                        decoration: BoxDecoration(
+                                                            border: Border.all(
+                                                                width: 2,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        216,
+                                                                        216,
+                                                                        216)),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                        child: RadioListTile(
+                                                            activeColor:
+                                                                Colors.black,
+                                                            title: Row(
+                                                              children: const [
+                                                                Icon(
+                                                                  Icons
+                                                                      .more_time,
+                                                                  size: 30,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 15,
+                                                                ),
+                                                                Text(
+                                                                  "Mark as Present",
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      fontSize:
+                                                                          17),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            value: 0,
+                                                            groupValue:
+                                                                radioValue,
+                                                            onChanged: (val) {
+                                                              state(() {
+                                                                radioValue =
+                                                                    val!;
+                                                                _normalBox();
+                                                                show = false;
+                                                              });
+
+                                                              print(radioValue);
+                                                            })),
+                                                    SizedBox(
+                                                      height: 25,
+                                                    ),
+                                                    AnimatedContainer(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                bottom: 6),
+                                                        duration: Duration(
+                                                            milliseconds: 100),
+                                                        height: boxHeight,
+                                                        decoration: BoxDecoration(
+                                                            border: Border.all(
+                                                                width: 2,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        216,
+                                                                        216,
+                                                                        216)),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                        child: RadioListTile(
+                                                            activeColor:
+                                                                Colors.black,
+                                                            title: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Row(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .center,
+                                                                  children: const [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .access_time_filled,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      size: 30,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width: 15,
+                                                                    ),
+                                                                    Text(
+                                                                      "Mark Exact Time",
+                                                                      style: TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .w500,
+                                                                          fontSize:
+                                                                              17),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                show == true
+                                                                    ? StatefulBuilder(builder: (BuildContext
+                                                                            context,
+                                                                        StateSetter
+                                                                            state) {
+                                                                        return Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            ElevatedButton(
+                                                                                style: ElevatedButton.styleFrom(fixedSize: Size(120, 0), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), side: BorderSide(color: Colors.black, width: 1), backgroundColor: Colors.white),
+                                                                                onPressed: () {
+                                                                                  Navigator.of(context).push(
+                                                                                    showPicker(
+                                                                                      context: context,
+                                                                                      value: _inTime,
+                                                                                      onChange: inTimeChanged,
+                                                                                      minuteInterval: MinuteInterval.ONE,
+                                                                                      // Optional onChange to receive value as DateTime
+                                                                                      onChangeDateTime: (DateTime dateTime) {
+                                                                                        // print(dateTime);
+
+                                                                                        state(() {
+                                                                                          inTime = DateFormat.jm().format(dateTime);
+                                                                                        });
+                                                                                        print(_inTime);
+                                                                                        debugPrint("[debug datetime]:  ${DateFormat.jm().format(dateTime)}");
+                                                                                      },
+                                                                                    ),
+                                                                                  );
+                                                                                },
+                                                                                child: Row(
+                                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      inTime,
+                                                                                      style: TextStyle(color: Colors.black),
+                                                                                    ),
+                                                                                    Icon(
+                                                                                      Icons.timer_rounded,
+                                                                                      color: Colors.black,
+                                                                                    )
+                                                                                  ],
+                                                                                )),
+                                                                            ElevatedButton(
+                                                                                style: ElevatedButton.styleFrom(fixedSize: Size(120, 0), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), side: BorderSide(color: Colors.black, width: 1), backgroundColor: Colors.white),
+                                                                                onPressed: () {
+                                                                                  Navigator.of(context).push(
+                                                                                    showPicker(
+                                                                                      context: context,
+                                                                                      value: _outTime,
+                                                                                      onChange: outTimeChanged,
+                                                                                      minuteInterval: MinuteInterval.ONE,
+                                                                                      // Optional onChange to receive value as DateTime
+                                                                                      onChangeDateTime: (DateTime dateTime) {
+                                                                                        // print(dateTime);
+                                                                                        state(() {
+                                                                                          outTime = DateFormat.jm().format(dateTime);
+                                                                                        });
+                                                                                        debugPrint("[debug datetime]:  ${DateFormat.jm().format(dateTime)} ");
+                                                                                      },
+                                                                                    ),
+                                                                                  );
+                                                                                },
+                                                                                child: Row(
+                                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      outTime,
+                                                                                      style: TextStyle(color: Colors.black),
+                                                                                    ),
+                                                                                    Icon(
+                                                                                      Icons.timer_rounded,
+                                                                                      color: Colors.black,
+                                                                                    )
+                                                                                  ],
+                                                                                ))
+                                                                          ],
+                                                                        );
+                                                                      })
+                                                                    : Container(),
+                                                              ],
+                                                            ),
+                                                            value: 1,
+                                                            groupValue:
+                                                                radioValue,
+                                                            onChanged: (val) {
+                                                              state(() {
+                                                                radioValue =
+                                                                    val!;
+                                                                _expandBox();
+                                                                show = true;
+                                                              });
+
+                                                              print(radioValue);
+                                                            })),
+                                                    SizedBox(
+                                                      height: 40,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        ElevatedButton(
                                                           onPressed: () {
                                                             Navigator.pop(
                                                                 context);
                                                           },
-                                                          icon: Icon(
-                                                              Icons.close)),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: 15,
-                                                  ),
-                                                  Container(
-                                                      height: 60,
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                              width: 2,
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      216,
-                                                                      216,
-                                                                      216)),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10)),
-                                                      child: RadioListTile(
-                                                          activeColor:
-                                                              Colors.black,
-                                                          title: Row(
-                                                            children: const [
-                                                              Icon(
-                                                                Icons.more_time,
-                                                                size: 30,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                              SizedBox(
-                                                                width: 15,
-                                                              ),
-                                                              Text(
-                                                                "Mark as Present",
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    fontSize:
-                                                                        17),
-                                                              )
-                                                            ],
-                                                          ),
-                                                          value: 0,
-                                                          groupValue:
-                                                              radioValue,
-                                                          onChanged: (val) {
-                                                            state(() {
-                                                              radioValue = val!;
-                                                              _normalBox();
-                                                              show = false;
-                                                            });
-
-                                                            print(radioValue);
-                                                          })),
-                                                  SizedBox(
-                                                    height: 25,
-                                                  ),
-                                                  AnimatedContainer(
-                                                      padding: EdgeInsets.only(
-                                                          bottom: 6),
-                                                      duration: Duration(
-                                                          milliseconds: 100),
-                                                      height: boxHeight,
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                              width: 2,
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      216,
-                                                                      216,
-                                                                      216)),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10)),
-                                                      child: RadioListTile(
-                                                          activeColor:
-                                                              Colors.black,
-                                                          title: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Row(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .center,
-                                                                children: const [
-                                                                  Icon(
-                                                                    Icons
-                                                                        .access_time_filled,
-                                                                    color: Colors
-                                                                        .black,
-                                                                    size: 30,
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 15,
-                                                                  ),
-                                                                  Text(
-                                                                    "Mark Exact Time",
-                                                                    style: TextStyle(
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w500,
-                                                                        fontSize:
-                                                                            17),
-                                                                  )
-                                                                ],
-                                                              ),
-                                                              show == true
-                                                                  ? StatefulBuilder(builder: (BuildContext
-                                                                          context,
-                                                                      StateSetter
-                                                                          state) {
-                                                                      return Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceBetween,
-                                                                        children: [
-                                                                          ElevatedButton(
-                                                                              style: ElevatedButton.styleFrom(fixedSize: Size(120, 0), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), side: BorderSide(color: Colors.black, width: 1), backgroundColor: Colors.white),
-                                                                              onPressed: () {
-                                                                                Navigator.of(context).push(
-                                                                                  showPicker(
-                                                                                    context: context,
-                                                                                    value: _inTime,
-                                                                                    onChange: inTimeChanged,
-                                                                                    minuteInterval: MinuteInterval.ONE,
-                                                                                    // Optional onChange to receive value as DateTime
-                                                                                    onChangeDateTime: (DateTime dateTime) {
-                                                                                      // print(dateTime);
-
-                                                                                      state(() {
-                                                                                        inTime = DateFormat.jm().format(dateTime);
-                                                                                      });
-                                                                                      print(_inTime);
-                                                                                      debugPrint("[debug datetime]:  ${DateFormat.jm().format(dateTime)}");
-                                                                                    },
-                                                                                  ),
-                                                                                );
-                                                                              },
-                                                                              child: Row(
-                                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                                children: [
-                                                                                  Text(
-                                                                                    inTime,
-                                                                                    style: TextStyle(color: Colors.black),
-                                                                                  ),
-                                                                                  Icon(
-                                                                                    Icons.timer_rounded,
-                                                                                    color: Colors.black,
-                                                                                  )
-                                                                                ],
-                                                                              )),
-                                                                          ElevatedButton(
-                                                                              style: ElevatedButton.styleFrom(fixedSize: Size(120, 0), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), side: BorderSide(color: Colors.black, width: 1), backgroundColor: Colors.white),
-                                                                              onPressed: () {
-                                                                                Navigator.of(context).push(
-                                                                                  showPicker(
-                                                                                    context: context,
-                                                                                    value: _outTime,
-                                                                                    onChange: outTimeChanged,
-                                                                                    minuteInterval: MinuteInterval.ONE,
-                                                                                    // Optional onChange to receive value as DateTime
-                                                                                    onChangeDateTime: (DateTime dateTime) {
-                                                                                      // print(dateTime);
-                                                                                      state(() {
-                                                                                        outTime = DateFormat.jm().format(dateTime);
-                                                                                      });
-                                                                                      debugPrint("[debug datetime]:  ${DateFormat.jm().format(dateTime)} ");
-                                                                                    },
-                                                                                  ),
-                                                                                );
-                                                                              },
-                                                                              child: Row(
-                                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                                children: [
-                                                                                  Text(
-                                                                                    outTime,
-                                                                                    style: TextStyle(color: Colors.black),
-                                                                                  ),
-                                                                                  Icon(
-                                                                                    Icons.timer_rounded,
-                                                                                    color: Colors.black,
-                                                                                  )
-                                                                                ],
-                                                                              ))
-                                                                        ],
-                                                                      );
-                                                                    })
-                                                                  : Container(),
-                                                            ],
-                                                          ),
-                                                          value: 1,
-                                                          groupValue:
-                                                              radioValue,
-                                                          onChanged: (val) {
-                                                            state(() {
-                                                              radioValue = val!;
-                                                              _expandBox();
-                                                              show = true;
-                                                            });
-
-                                                            print(radioValue);
-                                                          })),
-                                                  SizedBox(
-                                                    height: 40,
-                                                  ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Text(
-                                                          "Cancel",
-                                                          style: TextStyle(
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      123,
-                                                                      123,
-                                                                      123),
-                                                              fontSize: 17,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500),
-                                                        ),
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-
-                                                                //maximumSize: Size(7, 3),
-                                                                minimumSize:
-                                                                    const Size(
-                                                                        100,
-                                                                        40),
-                                                                elevation: 0,
-                                                                shape: RoundedRectangleBorder(
-                                                                    side: BorderSide(
-                                                                        color: Color.fromARGB(
-                                                                            255,
-                                                                            232,
-                                                                            232,
-                                                                            232),
-                                                                        width:
-                                                                            1.5),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            8.0))),
-                                                      ),
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          _validateInputs();
-                                                        },
-                                                        child: Text(
-                                                          "Apply",
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 17,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500),
-                                                        ),
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                                backgroundColor:
-                                                                    Color.fromARGB(
+                                                          child: Text(
+                                                            "Cancel",
+                                                            style: TextStyle(
+                                                                color: Color
+                                                                    .fromARGB(
                                                                         255,
-                                                                        30,
-                                                                        67,
-                                                                        159),
+                                                                        123,
+                                                                        123,
+                                                                        123),
+                                                                fontSize: 17,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
 
-                                                                //maximumSize: Size(7, 3),
-                                                                minimumSize:
-                                                                    const Size(
-                                                                        100,
-                                                                        40),
-                                                                elevation: 0,
-                                                                shape: RoundedRectangleBorder(
-                                                                    side: BorderSide(
-                                                                        color: Colors
-                                                                            .transparent,
-                                                                        width:
-                                                                            1.5),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            8.0))),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            );
+                                                                  //maximumSize: Size(7, 3),
+                                                                  minimumSize:
+                                                                      const Size(
+                                                                          100,
+                                                                          40),
+                                                                  elevation: 0,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      side: BorderSide(
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              232,
+                                                                              232,
+                                                                              232),
+                                                                          width:
+                                                                              1.5),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0))),
+                                                        ),
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            _validateInputs();
+                                                          },
+                                                          child: Text(
+                                                            "Apply",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 17,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                                  backgroundColor:
+                                                                      Color.fromARGB(
+                                                                          255,
+                                                                          30,
+                                                                          67,
+                                                                          159),
+
+                                                                  //maximumSize: Size(7, 3),
+                                                                  minimumSize:
+                                                                      const Size(
+                                                                          100,
+                                                                          40),
+                                                                  elevation: 0,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      side: BorderSide(
+                                                                          color: Colors
+                                                                              .transparent,
+                                                                          width:
+                                                                              1.5),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0))),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            });
                                           });
-                                        });
+                                    }
                                   }
                                 }
-                              }
-                              if (!isSameDay(_selectedDay, selectedDay)) {
+                                if (!isSameDay(_selectedDay, selectedDay)) {
+                                  setState(() {
+                                    _selectedDay = selectedDay;
+                                    focusedDay = changedDate;
+                                  });
+                                }
+                              }),
+                              selectedDayPredicate: (day) {
+                                return isSameDay(_selectedDay, day);
+                              },
+                              onPageChanged: (changedDate) async {
+                                focusedDay = changedDate;
                                 setState(() {
-                                  _selectedDay = selectedDay;
-                                  focusedDay = changedDate;
+                                  month = changedDate.month;
+                                  year = changedDate.year;
+                                  _getAttendance();
                                 });
-                              }
-                            }),
-                            selectedDayPredicate: (day) {
-                              return isSameDay(_selectedDay, day);
-                            },
-                            onPageChanged: (changedDate) async {
-                              focusedDay = changedDate;
-                              setState(() {
-                                month = changedDate.month;
-                                year = changedDate.year;
-                                _getAttendance();
-                              });
 
-                              print(year);
-                              setState(() {});
-                            },
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Divider(
-                            thickness: 1.3,
-                            height: 0,
-                            color: Colors.grey[350],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          if (SelectedDay != null) ...[
-                            Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        width: 1.8,
-                                        color: Color.fromARGB(
-                                            255, 218, 217, 217))),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          date,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 18),
-                                        ),
-                                        Container(
-                                          height: 26,
-                                          width: 75,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                              color: Color.fromARGB(
-                                                  210, 189, 239, 192),
-                                              border: Border.all(
-                                                  color: Colors.transparent),
-                                              borderRadius:
-                                                  BorderRadius.circular(6)),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: const [
-                                              Icon(
-                                                Icons.circle,
-                                                size: 10,
-                                                color: Colors.green,
-                                              ),
-                                              Text(
-                                                "Present",
-                                                style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Divider(
-                                      thickness: 1.5,
-                                      height: 30,
-                                      color: Color.fromARGB(255, 230, 230, 230),
-                                    ),
-                                    IntrinsicHeight(
-                                      child: Row(
+                                print(year);
+                                setState(() {});
+                              },
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Divider(
+                              thickness: 1.3,
+                              height: 0,
+                              color: Colors.grey[350],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            if (SelectedDay != null) ...[
+                              Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                          width: 1.8,
+                                          color: Color.fromARGB(
+                                              255, 218, 217, 217))),
+                                  child: Column(
+                                    children: [
+                                      Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "In Time",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                intime,
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                            ],
+                                          Text(
+                                            date,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 18),
                                           ),
-                                          VerticalDivider(
-                                            color: Color.fromARGB(
-                                                255, 230, 230, 230),
-                                            thickness: 1.6,
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Out Time",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                outtime,
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                            ],
-                                          ),
-                                          VerticalDivider(
-                                            color: Color.fromARGB(
-                                                255, 230, 230, 230),
-                                            thickness: 1.6,
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Working HRS",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                workinghrs,
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                            ],
-                                          ),
+                                          Container(
+                                            height: 26,
+                                            width: 75,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            decoration: BoxDecoration(
+                                                color: Color.fromARGB(
+                                                    210, 189, 239, 192),
+                                                border: Border.all(
+                                                    color: Colors.transparent),
+                                                borderRadius:
+                                                    BorderRadius.circular(6)),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: const [
+                                                Icon(
+                                                  Icons.circle,
+                                                  size: 10,
+                                                  color: Colors.green,
+                                                ),
+                                                Text(
+                                                  "Present",
+                                                  style: TextStyle(
+                                                      color: Colors.green,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                              ],
+                                            ),
+                                          )
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 30,
-                                    ),
-                                    IntrinsicHeight(
-                                      child: Row(
+                                      Divider(
+                                        thickness: 1.5,
+                                        height: 30,
+                                        color:
+                                            Color.fromARGB(255, 230, 230, 230),
+                                      ),
+                                      IntrinsicHeight(
+                                        child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceAround,
                                           children: [
@@ -1161,7 +1091,7 @@ class _AttendanceState extends State<Attendance> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Break Time",
+                                                  "In Time",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1171,35 +1101,7 @@ class _AttendanceState extends State<Attendance> {
                                                   height: 5,
                                                 ),
                                                 Text(
-                                                  brktime,
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                              ],
-                                            ),
-                                            VerticalDivider(
-                                              color: Color.fromARGB(
-                                                  255, 230, 230, 230),
-                                              thickness: 1.6,
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: const [
-                                                Text(
-                                                  "Total Breaks",
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                                SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Text(
-                                                  "1 Break",
+                                                  intime,
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1217,7 +1119,7 @@ class _AttendanceState extends State<Attendance> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Overtime",
+                                                  "Out Time",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1227,7 +1129,7 @@ class _AttendanceState extends State<Attendance> {
                                                   height: 5,
                                                 ),
                                                 Text(
-                                                  "$overtime HRS",
+                                                  outtime,
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1235,43 +1137,181 @@ class _AttendanceState extends State<Attendance> {
                                                 ),
                                               ],
                                             ),
-                                          ]),
-                                    ),
-                                  ],
-                                )),
-                          ] else ...[
-                            Container()
-                          ],
-                          SizedBox(
-                            height: 20,
-                          ),
-                        ]),
-                  )));
+                                            VerticalDivider(
+                                              color: Color.fromARGB(
+                                                  255, 230, 230, 230),
+                                              thickness: 1.6,
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Working HRS",
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Text(
+                                                  workinghrs,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w400),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 30,
+                                      ),
+                                      IntrinsicHeight(
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Break Time",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                    brktime,
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                ],
+                                              ),
+                                              VerticalDivider(
+                                                color: Color.fromARGB(
+                                                    255, 230, 230, 230),
+                                                thickness: 1.6,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: const [
+                                                  Text(
+                                                    "Total Breaks",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                    "1 Break",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                ],
+                                              ),
+                                              VerticalDivider(
+                                                color: Color.fromARGB(
+                                                    255, 230, 230, 230),
+                                                thickness: 1.6,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Overtime",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                    "$overtime HRS",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                ],
+                                              ),
+                                            ]),
+                                      ),
+                                    ],
+                                  )),
+                            ] else ...[
+                              Container()
+                            ],
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ]),
+                    )),
+        ));
   }
 
   // Get Document information by API
   List<AttendanceData> list = [];
   var Present, Absent, HalfDay, Leaves, DayOff;
   Future<List<AttendanceData>> _getAttendance() async {
-    String url =
-        '${TextConstant.baseURL}/api/attendance/attendanceReport/month?employeeId=$employeeId&month=$month&year=$year';
-    http.Response res;
+    try {
+      setState(() {
+        Present = 0;
+        Absent = 0;
+        HalfDay = 0;
+        Leaves = 0;
+        DayOff = 0;
+        list.clear();
+      });
+      String url =
+          '${TextConstant.baseURL}/api/attendance/attendanceReport/month?employeeId=$employeeId&month=$month&year=$year';
+      http.Response res;
 
-    res = await http.get(Uri.parse(url));
-    attendanceData = jsonDecode(res.body);
+      res = await http.get(Uri.parse(url));
+      attendanceData = jsonDecode(res.body);
 
-    for (int i = 0; i < attendanceData.length; i++) {
-      list.add(AttendanceData.fromJson(attendanceData[i]));
+      for (int i = 0; i < attendanceData.length; i++) {
+        list.add(AttendanceData.fromJson(attendanceData[i]));
+      }
+
+      setState(() {
+        Present = list.where((element) => element.status == "P").length;
+        Absent = list.where((element) => element.status == "A").length;
+        HalfDay = list.where((element) => element.status == "HD").length;
+        Leaves = list.where((element) => element.status == "HDL").length;
+        DayOff = list.where((element) => element.status == "DO").length;
+      });
+    } on Exception catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppColors.maincolor,
+          content: Text(
+            "${e.toString()} \nLoading Again...",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          )));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const Attendance(),
+      ));
     }
-
-    setState(() {
-      Present = list.where((element) => element.status == "P").length;
-      Absent = list.where((element) => element.status == "A").length;
-      HalfDay = list.where((element) => element.status == "HD").length;
-      Leaves = list.where((element) => element.status == "HDL").length;
-      DayOff = list.where((element) => element.status == "DO").length;
-    });
-
     return list;
   }
 

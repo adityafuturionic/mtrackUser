@@ -1,18 +1,24 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:mtrackuser/Screens/DashBoard/annoucements.dart';
 import 'package:mtrackuser/Screens/DashBoard/attendance.dart';
 import 'package:mtrackuser/Screens/DashBoard/companyPolicies.dart';
 import 'package:mtrackuser/Screens/DashBoard/companyProfile.dart';
-import 'package:mtrackuser/Screens/DashBoard/dashboard_screen.dart';
-import 'package:mtrackuser/Screens/DashBoard/holiday_list.dart';
+import 'package:mtrackuser/Screens/DashBoard/dashboard.dart';
+import 'package:mtrackuser/Screens/DashBoard/holidayList.dart';
 import 'package:mtrackuser/Screens/DashBoard/leave.dart';
-import 'package:mtrackuser/Screens/DashBoard/myprofile.dart';
+import 'package:mtrackuser/Screens/DashBoard/myProfile.dart';
 import 'package:mtrackuser/Screens/DashBoard/payroll.dart';
 import 'package:mtrackuser/Screens/DashBoard/workProfile.dart';
+import 'package:mtrackuser/Screens/fileUpload.dart';
 import 'package:mtrackuser/Screens/login/forgot_password_screen.dart';
 import 'package:mtrackuser/Screens/login/login_screen.dart';
 import 'package:mtrackuser/Screens/login/update_password_screen.dart';
 import 'package:mtrackuser/Screens/login/verify_otp_screen.dart';
+import 'package:mtrackuser/test.dart';
+
+import '../Screens/medicalCard.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -51,7 +57,12 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const Annoucements());
       case '/WorkProfile':
         return MaterialPageRoute(builder: (_) => const WorkProfile());
-
+      case '/FileUpload':
+        return MaterialPageRoute(builder: (_) => const FileUpload());
+      case '/MedicalCard':
+        return MaterialPageRoute(builder: (_) => const MedicalCard());
+      case '/Test':
+        return MaterialPageRoute(builder: (_) => const Test());
       default:
         return MaterialPageRoute(
             builder: (_) => Scaffold(

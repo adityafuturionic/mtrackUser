@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, avoid_print, use_build_context_synchronously, prefer_typing_uninitialized_variables
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +9,7 @@ import 'package:lottie/lottie.dart';
 import 'package:mtrackuser/Constants/text_constant.dart';
 import 'package:mtrackuser/Models/userdataModel.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
-import 'package:mtrackuser/Screens/DashBoard/dashboard_screen.dart';
+import 'package:mtrackuser/Screens/DashBoard/dashboard.dart';
 import 'package:mtrackuser/Screens/login/forgot_password_screen.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +22,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController emailController = TextEditingController();
+  TextEditingController inputController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   UserModel _userModel = UserModel();
@@ -37,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         appBar: AppBar(
-          // iconTheme: IconThemeData(color: Color.fromARGB(255, 30, 67, 159)),
           systemOverlayStyle: const SystemUiOverlayStyle(
               systemNavigationBarColor: Colors.transparent,
               statusBarColor: Colors.transparent),
@@ -53,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+            padding: EdgeInsets.only(top: 100, left: 30, right: 30),
             child: Form(
               key: _formKey,
               child: Column(
@@ -79,21 +81,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         CustomWidgets.textField(
                           hintText: "Email/Phone",
-                          textController: emailController,
+                          textController: inputController,
                           prefixIcon: Icon(
                             Icons.person_outline_outlined,
                             color: Colors.black54,
                           ),
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return ("Email is Required");
+                              return ("Email/Phone is Required");
                             }
-                            if (!RegExp(
-                                    r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-                                .hasMatch(value)) {
-                              return ("Enter a valid Email");
-                            }
-                            return null;
+                            // if (field == "email") {
+                            //   if (!RegExp(
+                            //           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-z]+\.[a-z]")
+                            //       .hasMatch(value)) {
+                            //     return ("Enter a valid Email");
+                            //   }
+                            // } else {
+                            //   return ("Enter a valid Number");
+                            // }
                           },
                         ),
                         SizedBox(
@@ -127,25 +132,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // next == true
-                            //     ? Lottie.asset("assets/circular1.json",
-                            //         height: 70)
-                            //     :
-                            CustomWidgets.button(
-                                text: "SIGN IN",
-                                onPressed: () async {
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  prefs.setBool('isLoggedIn', true);
-                                  login(emailController.text,
-                                      passwordController.text);
+                            next == true
+                                ? Lottie.asset("assets/loginLoading.json",
+                                    height: 100)
+                                : CustomWidgets.button(
+                                    text: "SIGN IN",
+                                    onPressed: () async {
+                                      if (RegExp(
+                                              r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$')
+                                          .hasMatch(inputController.text)) {
+                                        field = "mobile";
+                                      } else {
+                                        field = "email";
+                                      }
+                                      print(field);
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      prefs.setBool('isLoggedIn', true);
 
-                                  Lottie.asset("assets/circular.json",
-                                      height: 130, alignment: Alignment.center);
-                                }),
+                                      login(inputController.text,
+                                          passwordController.text);
+                                    }),
                             SizedBox(
                               height: 15,
                             ),
@@ -174,18 +184,34 @@ class _LoginScreenState extends State<LoginScreen> {
         ));
   }
 
-  login(String email, password) async {
+  var field;
+  Future<void> login(String input, password) async {
     setState(() {
       next = true;
     });
+    // Future.delayed(const Duration(seconds: 7), () {
+    //   setState(() {
+    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //         duration: Duration(seconds: 3),
+    //         backgroundColor: AppColors.maincolor,
+    //         content: Text(
+    //           "Try Again",
+    //           style: TextStyle(color: Colors.white, fontSize: 18),
+    //         )));
+    //     next = false;
+    //   });
+    // });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       var headers = {'Content-Type': 'application/json'};
       var url = Uri.parse('${TextConstant.baseURL}/api/user/login');
-      Map body = {"email": email.toString(), "password": password};
+
+      Map body = {
+        "$field": input.toString(),
+        "password": password,
+      };
       http.Response res =
           await http.post(url, body: jsonEncode(body), headers: headers);
-
       var responseBody = res.body;
       print(responseBody);
       if (res.statusCode == 200) {
@@ -196,7 +222,18 @@ class _LoginScreenState extends State<LoginScreen> {
           next = true;
         });
         prefs.setString('Users', userModelToMap(_userModel));
+        // Navigator.pushAndRemoveUntil<void>(
+        //   context,
+        //   MaterialPageRoute<void>(
+        //     builder: (BuildContext context) => DashboardScreen(),
+        //   ),
+        //   (Route<dynamic> route) => false,
+        // );
         Get.to(DashboardScreen());
+        // Navigator.of(context).push(MaterialPageRoute(
+        //   builder: (context) => const DashboardScreen(),
+        // ));
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: Colors.green,
@@ -208,6 +245,9 @@ class _LoginScreenState extends State<LoginScreen> {
               )),
         );
       } else {
+        setState(() {
+          next = false;
+        });
         print('failed');
         if (res.body.isNotEmpty) {
           var errMsg = json.decode(responseBody);
@@ -217,6 +257,15 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppColors.maincolor,
+          content: Text(
+            "${e.toString()} \nTry Again",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          )));
+      setState(() {
+        next = false;
+      });
       print(e.toString());
     }
     return;

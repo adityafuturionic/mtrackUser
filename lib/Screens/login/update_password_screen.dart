@@ -1,8 +1,10 @@
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mtrackuser/Constants/color_constant.dart';
-import 'package:mtrackuser/Screens/DashBoard/dashboard_screen.dart';
+import 'package:mtrackuser/Screens/DashBoard/dashboard.dart';
 import 'package:mtrackuser/custom_widgets.dart';
 
 class UpdatePassword extends StatefulWidget {

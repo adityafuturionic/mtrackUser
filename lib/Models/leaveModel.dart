@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_this, file_names
+
 class LeaveType {
   int id;
   String name;
@@ -67,5 +69,21 @@ class AppliedLeaveData {
   @override
   String toString() {
     return '{${this.id},${this.status},${this.reasonForLeave},${this.employeeId},${this.leaveTypeId},${this.startDateTime},${this.endDateTime},${this.name},${this.createdAt}}';
+  }
+}
+
+//Leave Balance
+class LeaveBalance {
+  int leavesAccruedThisMonth;
+
+  int leavesTakenThisMonth;
+  int leavesMonthOpeningBalance;
+
+  LeaveBalance(this.leavesAccruedThisMonth, this.leavesTakenThisMonth,
+      this.leavesMonthOpeningBalance);
+
+  @override
+  String toString() {
+    return '{${this.leavesAccruedThisMonth},${this.leavesMonthOpeningBalance}}';
   }
 }
